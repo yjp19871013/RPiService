@@ -1,12 +1,23 @@
 package utils
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/json-iterator/go"
 )
+
+func JsonMarshal(v interface{}) (string, error) {
+	j := jsoniter.ConfigCompatibleWithStandardLibrary
+	return j.MarshalToString(v)
+}
+
+func JsonUnmarshal(str string, v interface{}) error {
+	j := jsoniter.ConfigCompatibleWithStandardLibrary
+	return j.UnmarshalFromString(str, v)
+}
 
 func LoadJsonFileConfig(pathname string, v interface{}) error {
 	absPath, err := filepath.Abs(pathname)
@@ -21,7 +32,7 @@ func LoadJsonFileConfig(pathname string, v interface{}) error {
 		return err
 	}
 
-	err = json.Unmarshal(data, v)
+	err = JsonUnmarshal(string(data), v)
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -52,7 +63,7 @@ func GetAllFiles(pathname string) ([]string, error) {
 	files := make([]string, 0)
 	for _, fi := range rd {
 		if fi.IsDir() {
-			GetAllFiles(pathname + fi.Name() + "\\")
+			GetAllFiles(pathname + fi.Name() + string(os.PathSeparator))
 		} else {
 			files = append(files, fi.Name())
 		}

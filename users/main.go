@@ -7,13 +7,18 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/yjp19871013/RPiService/filestation/router"
+	"github.com/yjp19871013/RPiService/users/db"
+
+	"github.com/yjp19871013/RPiService/users/router"
 
 	"github.com/gin-gonic/gin"
 	DEATH "gopkg.in/vrecan/death.v3"
 )
 
 func main() {
+	db.InitDb()
+	defer db.CloseDb()
+
 	r := gin.Default()
 
 	router.InitRouter(r)
