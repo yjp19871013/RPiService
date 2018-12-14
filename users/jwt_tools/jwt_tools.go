@@ -1,4 +1,4 @@
-package main
+package jwt_tools
 
 import (
 	"time"

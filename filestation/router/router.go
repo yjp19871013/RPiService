@@ -5,13 +5,13 @@ import (
 )
 
 var (
-	getRouter = map[string]gin.HandlerFunc{}
+	getRouter = map[string][]gin.HandlerFunc{}
 
-	postRouter = map[string]gin.HandlerFunc{}
+	postRouter = map[string][]gin.HandlerFunc{}
 
-	patchRouter = map[string]gin.HandlerFunc{}
+	patchRouter = map[string][]gin.HandlerFunc{}
 
-	deleteRouter = map[string]gin.HandlerFunc{}
+	deleteRouter = map[string][]gin.HandlerFunc{}
 )
 
 func InitRouter(r *gin.Engine) {
@@ -23,24 +23,24 @@ func InitRouter(r *gin.Engine) {
 
 func initGetRouter(r *gin.Engine) {
 	for path, f := range getRouter {
-		r.GET(path, f)
+		r.GET(path, f...)
 	}
 }
 
 func initPostRouter(r *gin.Engine) {
 	for path, f := range getRouter {
-		r.POST(path, f)
+		r.POST(path, f...)
 	}
 }
 
 func initPatchRouter(r *gin.Engine) {
 	for path, f := range getRouter {
-		r.PATCH(path, f)
+		r.PATCH(path, f...)
 	}
 }
 
 func initDeleteRouter(r *gin.Engine) {
 	for path, f := range getRouter {
-		r.DELETE(path, f)
+		r.DELETE(path, f...)
 	}
 }

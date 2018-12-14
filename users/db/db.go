@@ -3,34 +3,32 @@ package db
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-
-	"github.com/yjp19871013/RPiService/users/model"
 )
 
 var (
 	db *gorm.DB
 
-	allPermissions = []*model.Permission{
+	allPermissions = []*Permission{
 		{
 			Name:        "all",
 			Description: "All permissions",
 		},
 	}
 
-	allRoles = []*model.Role{
+	allRoles = []*Role{
 		{
 			Name:        "admin_role",
 			Description: "admin role",
 		},
 	}
 
-	adminUser = &model.User{
+	adminUser = &User{
 		Username: "admin",
 		Password: "3400CD4574D4D14D29251E5EA620A925", // rpi_admin
 	}
 )
 
-func getInstance() *gorm.DB {
+func GetInstance() *gorm.DB {
 	return db
 }
 
@@ -41,7 +39,9 @@ func InitDb() {
 		panic(err.Error())
 	}
 
-	db.AutoMigrate(&model.Permission{}, &model.Role{}, &model.User{})
+	db.AutoMigrate(&Permission{}, &Role{}, &User{})
+
+	db.LogMode(true)
 
 	createAdminUser()
 }
@@ -51,7 +51,7 @@ func CloseDb() {
 }
 
 func createAdminUser() {
-	permissions := make([]*model.Permission, 0)
+	permissions := make([]*Permission, 0)
 	db.Find(&permissions)
 	if len(permissions) != len(allPermissions) {
 		for _, permission := range allPermissions {
@@ -59,7 +59,7 @@ func createAdminUser() {
 		}
 	}
 
-	roles := make([]*model.Role, 0)
+	roles := make([]*Role, 0)
 	db.Find(&roles)
 	if len(roles) != len(allRoles) {
 		for _, role := range allRoles {
@@ -67,9 +67,9 @@ func createAdminUser() {
 		}
 	}
 
-	var user model.User
+	var user User
 	db.Where("username = ?", adminUser.Username).First(&user)
-	if user.Username == "" {
+	if user.ID == 0 {
 		db.Create(adminUser)
 	}
 }
