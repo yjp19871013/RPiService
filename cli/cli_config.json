@@ -1,0 +1,7 @@
+{
+    "processes": [
+        "./users",
+        "./filestation"
+    ],
+    "pid_file_dir": "/tmp/RPiService"
+}
