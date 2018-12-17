@@ -40,7 +40,7 @@ func CreateToken(c *gin.Context) {
 		return
 	}
 
-	jwtCode, err := jwt_tools.NewJWT(settings.SecretKey, 1*time.Hour)
+	jwtCode, err := jwt_tools.NewJWT(settings.SecretKey, 24*time.Hour)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, entities.TokenResponse{Token: "服务器内部错误"})
 		return

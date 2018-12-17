@@ -1,9 +1,14 @@
 package jwt_tools
 
 import (
+	"net/http"
 	"time"
 
+	"github.com/yjp19871013/RPiService/users/db"
+	"github.com/yjp19871013/RPiService/users/settings"
+
 	"github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go/request"
 )
 
 func NewJWT(SecretKey string, exp time.Duration) (string, error) {
@@ -19,4 +24,22 @@ func NewJWT(SecretKey string, exp time.Duration) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func IsJWTValidate(req *http.Request) bool {
+	token, err := request.ParseFromRequest(req, request.AuthorizationHeaderExtractor,
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(settings.SecretKey), nil
+		})
+	if err != nil || !token.Valid {
+		return false
+	}
+
+	var user db.User
+	db.GetInstance().Where("token = ?", token.Raw).First(&user)
+	if user.ID == 0 {
+		return false
+	}
+
+	return true
 }
