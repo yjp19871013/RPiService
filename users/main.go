@@ -8,10 +8,12 @@ import (
 	"time"
 
 	"github.com/yjp19871013/RPiService/users/db"
-
+	"github.com/yjp19871013/RPiService/users/entities"
 	"github.com/yjp19871013/RPiService/users/router"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	validator "gopkg.in/go-playground/validator.v8"
 	DEATH "gopkg.in/vrecan/death.v3"
 )
 
@@ -19,8 +21,14 @@ func main() {
 	db.InitDb()
 	defer db.CloseDb()
 
-	r := gin.Default()
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		err := v.RegisterValidation("email_validator", entities.EmailValidator)
+		if err != nil {
+			log.Println("err:", err)
+		}
+	}
 
+	r := gin.Default()
 	router.InitRouter(r)
 
 	srv := &http.Server{

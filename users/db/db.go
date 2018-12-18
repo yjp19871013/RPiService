@@ -23,7 +23,7 @@ var (
 	}
 
 	adminUser = &User{
-		Username: "admin",
+		Email:    "admin@yjp.com",
 		Password: "3400CD4574D4D14D29251E5EA620A925", // rpi_admin
 	}
 )
@@ -68,7 +68,7 @@ func createAdminUser() {
 	}
 
 	var user User
-	db.Where("username = ?", adminUser.Username).First(&user)
+	db.Where("username = ?", adminUser.Email).First(&user)
 	if user.ID == 0 {
 		db.Create(adminUser)
 	}

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -22,12 +23,8 @@ func CreateToken(c *gin.Context) {
 	var request entities.CreateTokenRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, entities.TokenResponse{Token: "参数错误"})
-		return
-	}
-
-	if len(request.Username) == 0 || len(request.Password) == 0 {
-		c.JSON(http.StatusUnauthorized, entities.TokenResponse{Token: "用户名或密码错误"})
+		log.Println(err)
+		c.JSON(http.StatusUnauthorized, entities.TokenResponse{Token: ""})
 		return
 	}
 
@@ -36,13 +33,13 @@ func CreateToken(c *gin.Context) {
 	var user = db.User{}
 	db.GetInstance().Where("password = ?", encodePwd).First(&user)
 	if user.ID == 0 {
-		c.JSON(http.StatusUnauthorized, entities.TokenResponse{Token: "用户名或密码错误"})
+		c.JSON(http.StatusUnauthorized, entities.TokenResponse{Token: ""})
 		return
 	}
 
 	jwtCode, err := jwt_tools.NewJWT(settings.SecretKey, 24*time.Hour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, entities.TokenResponse{Token: "服务器内部错误"})
+		c.JSON(http.StatusInternalServerError, entities.TokenResponse{Token: ""})
 		return
 	}
 
@@ -60,10 +57,14 @@ func DeleteToken(c *gin.Context) {
 	var user = db.User{}
 	db.GetInstance().Where("token = ?", token).First(&user)
 	if user.ID == 0 {
-		c.JSON(http.StatusUnauthorized, entities.TokenResponse{Token: "无效的token"})
+		c.JSON(http.StatusUnauthorized, entities.TokenResponse{Token: ""})
 		return
 	}
 
 	db.GetInstance().Model(&user).Update("token", "")
 	c.JSON(http.StatusOK, entities.TokenResponse{Token: token})
+}
+
+func Register(c *gin.Context) {
+
 }

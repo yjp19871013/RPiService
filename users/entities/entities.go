@@ -1,8 +1,8 @@
 package entities
 
 type CreateTokenRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Email    string `json:"email" binding:"required,email_validator"`
+	Password string `json:"password" binding:"required"`
 }
 
 type TokenResponse struct {

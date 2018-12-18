@@ -11,6 +11,7 @@ var (
 
 	postRouter = map[string][]gin.HandlerFunc{
 		"/api/users/token": {handler.CreateToken},
+		"/api/users":       {handler.Register},
 	}
 
 	patchRouter = map[string][]gin.HandlerFunc{}
