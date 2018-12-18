@@ -3,29 +3,28 @@ package db
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/yjp19871013/RPiService/utils"
+)
+
+const (
+	SuperPermissionName = "super"
+	SuperPermissionDesc = "super permissions"
+
+	CommonPermissionName = "common"
+	CommonPermissionDesc = "common permissions"
+
+	AdminRoleName = "admin_role"
+	AdminRoleDesc = "admin role"
+
+	CommonRoleName = "common_role"
+	CommonRoleDesc = "common role"
+
+	AdminUserEmail    = "admin@yjp.com"
+	AdminUserPassword = "123456"
 )
 
 var (
 	db *gorm.DB
-
-	allPermissions = []*Permission{
-		{
-			Name:        "all",
-			Description: "All permissions",
-		},
-	}
-
-	allRoles = []*Role{
-		{
-			Name:        "admin_role",
-			Description: "admin role",
-		},
-	}
-
-	adminUser = &User{
-		Email:    "admin@yjp.com",
-		Password: "3400CD4574D4D14D29251E5EA620A925", // rpi_admin
-	}
 )
 
 func GetInstance() *gorm.DB {
@@ -39,37 +38,57 @@ func InitDb() {
 		panic(err.Error())
 	}
 
-	db.AutoMigrate(&Permission{}, &Role{}, &User{})
+	db.AutoMigrate(&Permission{}, &Role{}, &User{}, &ValidateCode{})
 
 	db.LogMode(true)
 
-	createAdminUser()
+	createPermissions()
+	createRoles()
+	createUsers()
 }
 
 func CloseDb() {
 	db.Close()
 }
 
-func createAdminUser() {
-	permissions := make([]*Permission, 0)
-	db.Find(&permissions)
-	if len(permissions) != len(allPermissions) {
-		for _, permission := range allPermissions {
-			db.Create(permission)
-		}
+func createPermissions() {
+	superPermission := Permission{
+		Name:        SuperPermissionName,
+		Description: SuperPermissionDesc,
 	}
+	db.Save(&superPermission)
 
-	roles := make([]*Role, 0)
-	db.Find(&roles)
-	if len(roles) != len(allRoles) {
-		for _, role := range allRoles {
-			db.Create(role)
-		}
+	commonPermission := Permission{
+		Name:        CommonPermissionName,
+		Description: CommonPermissionDesc,
 	}
+	db.Save(&commonPermission)
+}
 
-	var user User
-	db.Where("username = ?", adminUser.Email).First(&user)
-	if user.ID == 0 {
-		db.Create(adminUser)
+func createRoles() {
+	var superPermission Permission
+	db.Where("name = ?", SuperPermissionName).First(&superPermission)
+
+	adminRole := Role{
+		Name:        AdminRoleName,
+		Description: AdminRoleDesc,
+		Permissions: []Permission{
+			superPermission,
+		},
 	}
+	db.Save(&adminRole)
+}
+
+func createUsers() {
+	var adminRole Role
+	db.Where("name = ?", AdminRoleName).First(&adminRole)
+
+	adminUser := User{
+		Email:    AdminUserEmail,
+		Password: utils.MD5(AdminUserPassword),
+		Roles: []Role{
+			adminRole,
+		},
+	}
+	db.Save(&adminUser)
 }

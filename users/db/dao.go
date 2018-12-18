@@ -7,7 +7,7 @@ type User struct {
 
 	Email    string `gorm:"unique;not null"`
 	Password string `gorm:"not null"`
-	Token    string `gorm:"unique;not null"`
+	Token    string `gorm:"not null"`
 	Roles    []Role `gorm:"many2many:user_roles"`
 }
 
@@ -22,4 +22,10 @@ type Permission struct {
 	ID          uint   `gorm:"primary_key"`
 	Name        string `gorm:"unique;not null"`
 	Description string
+}
+
+type ValidateCode struct {
+	ID           uint   `gorm:"primary_key"`
+	Email        string `gorm:"unique;not null"`
+	ValidateCode string `gorm:"not null"`
 }

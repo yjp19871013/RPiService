@@ -5,8 +5,14 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
+	"net/mail"
+	"net/smtp"
 	"os"
 	"path/filepath"
+	"time"
+
+	"github.com/scorredoira/email"
 
 	"github.com/json-iterator/go"
 )
@@ -78,4 +84,25 @@ func MD5(str string) string {
 	h := md5.New()
 	h.Write([]byte(str))
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+func GenerateValidateCode() string {
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	return fmt.Sprintf("%0d", r.Intn(1000000))
+}
+
+const (
+	smtpHost    = "smtp.126.com"
+	smtpAddress = smtpHost + ":25"
+	username    = "XXXXXXX"
+	password    = "XXXXXXXX"
+)
+
+func SendEmail(subject string, body string, to string) error {
+	m := email.NewMessage(subject, body)
+	m.From = mail.Address{Name: "From", Address: username}
+	m.To = []string{to}
+
+	auth := smtp.PlainAuth("", username, password, smtpHost)
+	return email.Send(smtpAddress, auth, m)
 }
