@@ -13,7 +13,7 @@ func EmailValidator(
 	field reflect.Value, fieldType reflect.Type, fieldKind reflect.Kind, param string,
 ) bool {
 	if email, ok := field.Interface().(string); ok {
-		r, err := regexp.Compile(`^[a-zA-Z0-9_-{Han}]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$`)
+		r, err := regexp.Compile(`^[a-zA-Z0-9_-{Han}.]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$`)
 		if err != nil {
 			log.Fatal("正则表达式错误")
 		}
