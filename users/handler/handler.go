@@ -78,20 +78,19 @@ func GenerateValidateCode(c *gin.Context) {
 	var request entities.ValidateCodeRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	var user = db.User{}
 	err = db.GetInstance().Where("email = ?", request.Email).First(&user).Error
-	if err != nil {
+	if err == nil {
 		c.AbortWithStatus(http.StatusConflict)
 		return
 	}
 
 	var validateCode = db.ValidateCode{}
-	err = db.GetInstance().Where("email = ?", validateCode.Email).First(&validateCode).Error
+	err = db.GetInstance().Where("email = ?", request.Email).First(&validateCode).Error
 	if err != nil {
 		validateCode.Email = request.Email
 	}
@@ -135,8 +134,8 @@ func Register(c *gin.Context) {
 	}
 
 	var user db.User
-	err = db.GetInstance().Where("email = ?", user.Email).First(&user).Error
-	if err != nil {
+	err = db.GetInstance().Where("email = ?", request.Email).First(&user).Error
+	if err == nil {
 		c.AbortWithStatus(http.StatusConflict)
 		return
 	}
@@ -144,6 +143,7 @@ func Register(c *gin.Context) {
 	var commonRole db.Role
 	err = db.GetInstance().Where("name = ?", db.CommonRoleName).First(&commonRole).Error
 	if err != nil {
+		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
