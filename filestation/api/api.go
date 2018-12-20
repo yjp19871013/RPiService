@@ -5,13 +5,15 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/yjp19871013/RPiService/filestation/db"
+
 	"github.com/yjp19871013/RPiService/filestation/download_proxy"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yjp19871013/RPiService/filestation/dto"
 )
 
-var downloadProxy = download_proxy.NewDownloadProxy()
+var downloadProxy = download_proxy.NewProxy()
 
 func DownloadFile(c *gin.Context) {
 	var request dto.DownloadFileRequest
@@ -27,26 +29,24 @@ func DownloadFile(c *gin.Context) {
 		saveFilename = request.Url[strings.LastIndex(request.Url, "/")+1:]
 	}
 
-	task := download_proxy.Task{
-		Url:          request.Url,
-		SaveFilename: saveFilename,
+	err = downloadProxy.AddTask(request.Url, saveFilename)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
 	}
 
-	id, err := downloadProxy.AddDownloadTask(task)
+	downloadTask := &db.DownloadTask{}
+	downloadTask, err = db.SaveDownloadTask(downloadTask)
 	if err != nil {
-		if err.Error() == download_proxy.ErrAlreadyExist {
-			c.AbortWithStatus(http.StatusConflict)
-			return
-		}
-
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	response := dto.DownloadFileResponse{
-		ID:           id,
+		ID:           downloadTask.ID,
 		Url:          request.Url,
 		SaveFilename: saveFilename,
 	}
+
 	c.JSON(http.StatusOK, response)
 }
