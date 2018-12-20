@@ -9,10 +9,6 @@ var (
 	db *gorm.DB
 )
 
-func GetInstance() *gorm.DB {
-	return db
-}
-
 func InitDb() {
 	var err error
 	db, err = gorm.Open("mysql", "root:root@/rpi_file_station?charset=utf8&parseTime=True&loc=Local")
