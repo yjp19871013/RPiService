@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/yjp19871013/RPiService/users/handler"
+	"github.com/yjp19871013/RPiService/users/api"
 	"github.com/yjp19871013/RPiService/users/middleware"
 )
 
@@ -10,15 +10,15 @@ var (
 	getRouter = map[string][]gin.HandlerFunc{}
 
 	postRouter = map[string][]gin.HandlerFunc{
-		"/api/users/token":         {handler.CreateToken},
-		"/api/users":               {handler.Register},
-		"/api/users/validate-code": {handler.GenerateValidateCode},
+		"/api/users/token":         {api.CreateToken},
+		"/api/users":               {api.Register},
+		"/api/users/validate-code": {api.GenerateValidateCode},
 	}
 
 	patchRouter = map[string][]gin.HandlerFunc{}
 
 	deleteRouter = map[string][]gin.HandlerFunc{
-		"/api/users/token": {midware.JWTValidateMiddleware(), handler.DeleteToken},
+		"/api/users/token": {middleware.JWTValidateMiddleware(), api.DeleteToken},
 	}
 )
 

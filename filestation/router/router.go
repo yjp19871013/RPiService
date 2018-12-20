@@ -2,12 +2,15 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/yjp19871013/RPiService/filestation/api"
 )
 
 var (
 	getRouter = map[string][]gin.HandlerFunc{}
 
-	postRouter = map[string][]gin.HandlerFunc{}
+	postRouter = map[string][]gin.HandlerFunc{
+		"/api/file-station/download-proxy/files": { /*middleware.JWTValidateMiddleware(), */ api.DownloadFile},
+	}
 
 	patchRouter = map[string][]gin.HandlerFunc{}
 
@@ -28,19 +31,19 @@ func initGetRouter(r *gin.Engine) {
 }
 
 func initPostRouter(r *gin.Engine) {
-	for path, f := range getRouter {
+	for path, f := range postRouter {
 		r.POST(path, f...)
 	}
 }
 
 func initPatchRouter(r *gin.Engine) {
-	for path, f := range getRouter {
+	for path, f := range patchRouter {
 		r.PATCH(path, f...)
 	}
 }
 
 func initDeleteRouter(r *gin.Engine) {
-	for path, f := range getRouter {
+	for path, f := range deleteRouter {
 		r.DELETE(path, f...)
 	}
 }

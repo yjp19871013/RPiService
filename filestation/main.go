@@ -7,13 +7,27 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/yjp19871013/RPiService/filestation/db"
+	"github.com/yjp19871013/RPiService/filestation/dto"
 	"github.com/yjp19871013/RPiService/filestation/router"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	validator "gopkg.in/go-playground/validator.v8"
 	DEATH "gopkg.in/vrecan/death.v3"
 )
 
 func main() {
+	db.InitDb()
+	defer db.CloseDb()
+
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		err := v.RegisterValidation("url_validator", dto.UrlValidator)
+		if err != nil {
+			log.Println("err:", err)
+		}
+	}
+
 	r := gin.Default()
 
 	router.InitRouter(r)

@@ -7,8 +7,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/yjp19871013/RPiService/users/dto"
+
 	"github.com/yjp19871013/RPiService/users/db"
-	"github.com/yjp19871013/RPiService/users/entities"
 	"github.com/yjp19871013/RPiService/users/router"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +23,7 @@ func main() {
 	defer db.CloseDb()
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		err := v.RegisterValidation("email_validator", entities.EmailValidator)
+		err := v.RegisterValidation("email_validator", dto.EmailValidator)
 		if err != nil {
 			log.Println("err:", err)
 		}

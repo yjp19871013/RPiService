@@ -1,4 +1,4 @@
-package handler
+package api
 
 import (
 	"log"
@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/yjp19871013/RPiService/users/entities"
+	"github.com/yjp19871013/RPiService/users/dto"
 
 	"github.com/yjp19871013/RPiService/users/jwt_tools"
 
@@ -20,11 +20,11 @@ import (
 )
 
 func CreateToken(c *gin.Context) {
-	var request entities.CreateTokenRequest
+	var request dto.CreateTokenRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		log.Println(err)
-		c.JSON(http.StatusBadRequest, entities.TokenResponse{Token: ""})
+		c.JSON(http.StatusBadRequest, dto.TokenResponse{Token: ""})
 		return
 	}
 
@@ -49,7 +49,7 @@ func CreateToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, entities.TokenResponse{Token: jwtCode})
+	c.JSON(http.StatusOK, dto.TokenResponse{Token: jwtCode})
 }
 
 func DeleteToken(c *gin.Context) {
@@ -61,7 +61,7 @@ func DeleteToken(c *gin.Context) {
 	var user = db.User{}
 	err := db.GetInstance().Where("token = ?", token).First(&user).Error
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, entities.TokenResponse{Token: ""})
+		c.JSON(http.StatusUnauthorized, dto.TokenResponse{Token: ""})
 		return
 	}
 
@@ -71,11 +71,11 @@ func DeleteToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, entities.TokenResponse{Token: token})
+	c.JSON(http.StatusOK, dto.TokenResponse{Token: token})
 }
 
 func GenerateValidateCode(c *gin.Context) {
-	var request entities.ValidateCodeRequest
+	var request dto.ValidateCodeRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -114,7 +114,7 @@ func GenerateValidateCode(c *gin.Context) {
 }
 
 func Register(c *gin.Context) {
-	var request entities.RegisterRequest
+	var request dto.RegisterRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)

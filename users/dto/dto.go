@@ -1,4 +1,4 @@
-package entities
+package dto
 
 type CreateTokenRequest struct {
 	Email    string `json:"email" binding:"required,email_validator"`
