@@ -11,11 +11,6 @@ const (
 	ErrAlreadyExist = "already exist"
 )
 
-type Task struct {
-	Url          string
-	SaveFilename string
-}
-
 type DownloadProxy struct {
 	sync.Mutex
 }
@@ -24,18 +19,18 @@ func NewDownloadProxy() *DownloadProxy {
 	return &DownloadProxy{}
 }
 
-func (proxy *DownloadProxy) AddDownloadTask(task Task) (uint, error) {
+func (proxy *DownloadProxy) AddDownloadTask(urlStr string, saveFilename string) (uint, error) {
 	proxy.Lock()
 	defer proxy.Unlock()
 
 	var downloadTask db.DownloadTask
-	err := db.GetInstance().Where("url = ?", task.Url).First(&downloadTask).Error
+	err := db.GetInstance().Where("url = ?", urlStr).First(&downloadTask).Error
 	if err == nil {
 		return 0, fmt.Errorf(ErrAlreadyExist)
 	}
 
-	downloadTask.Url = task.Url
-	downloadTask.SaveFileName = task.SaveFilename
+	downloadTask.Url = urlStr
+	downloadTask.SaveFileName = saveFilename
 
 	err = db.GetInstance().Save(&downloadTask).Error
 	if err != nil {
@@ -45,12 +40,12 @@ func (proxy *DownloadProxy) AddDownloadTask(task Task) (uint, error) {
 	return downloadTask.ID, nil
 }
 
-func (proxy *DownloadProxy) DeleteDownloadTask(task Task) (uint, error) {
+func (proxy *DownloadProxy) DeleteDownloadTask(urlStr string) (uint, error) {
 	proxy.Lock()
 	defer proxy.Unlock()
 
 	var downloadTask db.DownloadTask
-	err := db.GetInstance().Where("url = ?", task.Url).First(&downloadTask).Error
+	err := db.GetInstance().Where("url = ?", urlStr).First(&downloadTask).Error
 	if err != nil {
 		return 0, err
 	}

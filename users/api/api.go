@@ -28,11 +28,13 @@ func CreateToken(c *gin.Context) {
 		return
 	}
 
-	encodePwd := utils.MD5(request.Password)
-
-	var user = db.User{}
-	err = db.GetInstance().Where("password = ?", encodePwd).First(&user).Error
+	user, err := db.FindUserByEmail(request.Email)
 	if err != nil {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	if user.Password != utils.MD5(request.Password) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
@@ -43,7 +45,8 @@ func CreateToken(c *gin.Context) {
 		return
 	}
 
-	err = db.GetInstance().Model(&user).Update("token", jwtCode).Error
+	user.Token = jwtCode
+	err = db.SaveUser(user)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -58,14 +61,14 @@ func DeleteToken(c *gin.Context) {
 		token = token[len("Bearer "):]
 	}
 
-	var user = db.User{}
-	err := db.GetInstance().Where("token = ?", token).First(&user).Error
+	user, err := db.FindUserByToken(token)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, dto.TokenResponse{Token: ""})
 		return
 	}
 
-	err = db.GetInstance().Model(&user).Update("token", "").Error
+	user.Token = ""
+	err = db.SaveUser(user)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -82,21 +85,21 @@ func GenerateValidateCode(c *gin.Context) {
 		return
 	}
 
-	var user = db.User{}
-	err = db.GetInstance().Where("email = ?", request.Email).First(&user).Error
+	_, err = db.FindUserByEmail(request.Email)
 	if err == nil {
 		c.AbortWithStatus(http.StatusConflict)
 		return
 	}
 
-	var validateCode = db.ValidateCode{}
-	err = db.GetInstance().Where("email = ?", request.Email).First(&validateCode).Error
+	validateCode, err := db.FindValidateCodeByEmail(request.Email)
 	if err != nil {
-		validateCode.Email = request.Email
+		validateCode = &db.ValidateCode{
+			Email: request.Email,
+		}
 	}
 
 	validateCode.ValidateCode = utils.GenerateValidateCode()
-	err = db.GetInstance().Save(&validateCode).Error
+	err = db.SaveValidateCode(validateCode)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -121,8 +124,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	var validateCode = db.ValidateCode{}
-	err = db.GetInstance().Where("email = ?", request.Email).First(&validateCode).Error
+	validateCode, err := db.FindValidateCodeByEmail(request.Email)
 	if err != nil || validateCode.ValidateCode != request.ValidateCode {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
@@ -133,35 +135,37 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	var user db.User
-	err = db.GetInstance().Where("email = ?", request.Email).First(&user).Error
+	_, err = db.FindUserByEmail(request.Email)
 	if err == nil {
 		c.AbortWithStatus(http.StatusConflict)
 		return
 	}
 
-	var commonRole db.Role
-	err = db.GetInstance().Where("name = ?", db.CommonRoleName).First(&commonRole).Error
+	commonRole, err := db.FindRoleByName(db.CommonRoleName)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	var newUser = db.User{}
+	var newUser = &db.User{}
 	newUser.Email = request.Email
 	newUser.Password = utils.MD5(request.Password1)
 	newUser.Roles = []db.Role{
-		commonRole,
+		*commonRole,
 	}
 
-	err = db.GetInstance().Save(&newUser).Error
+	err = db.SaveUser(newUser)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	db.GetInstance().Delete(&validateCode)
+	err = db.DeleteValidateCode(validateCode)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 
 	c.AbortWithStatus(http.StatusOK)
 }

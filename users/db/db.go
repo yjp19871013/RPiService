@@ -29,10 +29,6 @@ var (
 	db *gorm.DB
 )
 
-func GetInstance() *gorm.DB {
-	return db
-}
-
 func InitDb() {
 	var err error
 	db, err = gorm.Open("mysql", "root:root@/rpi_users?charset=utf8&parseTime=True&loc=Local")
@@ -54,69 +50,76 @@ func CloseDb() {
 }
 
 func createPermissions() {
-	var superPermission Permission
-	err := db.Where("name = ?", SuperPermissionName).First(&superPermission).Error
+	superPermission, err := FindPermissionByName(SuperPermissionName)
 	if err != nil {
 		superPermission.Name = SuperPermissionName
 		superPermission.Description = SuperPermissionDesc
-		db.Save(&superPermission)
+		err = SavePermission(superPermission)
+		if err != nil {
+			panic("Create super permission error")
+		}
 	}
 
-	var commonPermission Permission
-	err = db.Where("name = ?", CommonPermissionName).First(&commonPermission).Error
+	commonPermission, err := FindPermissionByName(CommonPermissionName)
 	if err != nil {
 		log.Println(err, commonPermission)
 		commonPermission.Name = CommonPermissionName
 		commonPermission.Description = CommonPermissionDesc
-		db.Save(&commonPermission)
+		err = SavePermission(commonPermission)
+		if err != nil {
+			panic("Create common permission error")
+		}
 	}
 }
 
 func createRoles() {
-	var superPermission Permission
-	err := db.Where("name = ?", SuperPermissionName).First(&superPermission).Error
+	superPermission, err := FindPermissionByName(SuperPermissionName)
 	if err != nil {
 		return
 	}
 
-	var adminRole Role
-	err = db.Where("name = ?", AdminRoleName).First(&adminRole).Error
+	adminRole, err := FindRoleByName(AdminRoleName)
 	if err != nil {
 		adminRole.Name = AdminRoleName
 		adminRole.Description = AdminRoleDesc
-		adminRole.Permissions = []Permission{superPermission}
-		db.Save(&adminRole)
+		adminRole.Permissions = []Permission{*superPermission}
+		err = SaveRole(adminRole)
+		if err != nil {
+			panic("Create admin role failed")
+		}
 	}
 
-	var commonPermission Permission
-	err = db.Where("name = ?", CommonPermissionName).First(&commonPermission).Error
+	commonPermission, err := FindPermissionByName(CommonPermissionName)
 	if err != nil {
 		return
 	}
 
-	var commonRole Role
-	err = db.Where("name = ?", CommonRoleName).First(&commonRole).Error
+	commonRole, err := FindRoleByName(CommonRoleName)
 	if err != nil {
 		commonRole.Name = CommonRoleName
 		commonRole.Description = CommonRoleDesc
-		commonRole.Permissions = []Permission{commonPermission}
-		db.Save(&commonRole)
+		commonRole.Permissions = []Permission{*commonPermission}
+		err = SaveRole(commonRole)
+		if err != nil {
+			panic("Create common role failed")
+		}
 	}
 }
 
 func createUsers() {
-	var adminRole Role
-	err := db.Where("name = ?", AdminRoleName).First(&adminRole).Error
+	adminRole, err := FindRoleByName(AdminRoleName)
 	if err != nil {
 		return
 	}
 
-	var adminUser User
-	err = db.Where("email = ?", AdminUserEmail).First(&adminUser).Error
+	adminUser, err := FindUserByEmail(AdminUserEmail)
 	if err != nil {
 		adminUser.Email = AdminUserEmail
 		adminUser.Password = utils.MD5(AdminUserPassword)
-		adminUser.Roles = []Role{adminRole}
-		db.Save(&adminUser)
+		adminUser.Roles = []Role{*adminRole}
+		err := SaveUser(adminUser)
+		if err != nil {
+			panic("Create admin user failed")
+		}
 	}
 }

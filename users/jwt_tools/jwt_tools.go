@@ -35,8 +35,7 @@ func IsJWTValidate(req *http.Request) bool {
 		return false
 	}
 
-	var user db.User
-	db.GetInstance().Where("token = ?", token.Raw).First(&user)
+	user, err := db.FindUserByToken(token.Raw)
 	if user.ID == 0 {
 		return false
 	}
