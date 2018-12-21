@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/yjp19871013/RPiService/filestation/db"
+	"golang.org/x/net/websocket"
 
 	"github.com/yjp19871013/RPiService/filestation/download_proxy"
 
@@ -35,8 +36,12 @@ func DownloadFile(c *gin.Context) {
 		return
 	}
 
-	downloadTask := &db.DownloadTask{}
-	downloadTask, err = db.SaveDownloadTask(downloadTask)
+	downloadTask := &db.DownloadTask{
+		Url:              request.Url,
+		SaveFilePathname: request.SaveFilename,
+	}
+
+	err = db.SaveDownloadTask(downloadTask)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -49,4 +54,8 @@ func DownloadFile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func DownloadProcessPush(ws *websocket.Conn) {
+
 }

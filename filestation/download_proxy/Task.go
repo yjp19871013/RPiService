@@ -4,13 +4,14 @@ import (
 	"bufio"
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
 type Task struct {
-	Url              string
-	SaveFilePathname string
-	ProcessChan      chan string
+	Url              string `gorm:"unique;not null"`
+	SaveFilePathname string `gorm:"not null"`
+	Process          uint
 	cmd              *exec.Cmd
 }
 
@@ -38,9 +39,12 @@ func (task *Task) Start() error {
 			}
 
 			process := strings.TrimSpace(outputStr[endIndex-3 : endIndex])
-			if task.ProcessChan != nil {
-				task.ProcessChan <- process
+			processInt, err := strconv.Atoi(process)
+			if err != nil {
+				continue
 			}
+
+			task.Process = uint(processInt)
 		}
 	}(reader)
 
@@ -49,8 +53,4 @@ func (task *Task) Start() error {
 
 func (task *Task) Stop() error {
 	return task.cmd.Process.Kill()
-}
-
-func (task *Task) Wait() error {
-	return task.cmd.Wait()
 }
