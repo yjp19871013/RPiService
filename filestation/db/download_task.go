@@ -16,9 +16,9 @@ func FindAllDownloadTasks() ([]DownloadTask, error) {
 	return tasks, nil
 }
 
-func FindDownloadTaskById(id string) (*DownloadTask, error) {
+func FindDownloadTaskByUrl(url string) (*DownloadTask, error) {
 	task := &DownloadTask{}
-	err := db.Where("id = ?", id).First(task).Error
+	err := db.Where("url = ?", url).First(task).Error
 	if err != nil {
 		return nil, err
 	}

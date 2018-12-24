@@ -2,20 +2,29 @@ package download_proxy
 
 import (
 	"bufio"
-	"fmt"
 	"os/exec"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type Task struct {
-	Url              string `gorm:"unique;not null"`
-	SaveFilePathname string `gorm:"not null"`
-	Process          uint
+	sync.Mutex
+	Url              string
+	SaveFilePathname string
+	Progress         uint
+	IsStart          bool
 	cmd              *exec.Cmd
 }
 
 func (task *Task) Start() error {
+	task.Lock()
+	defer task.Unlock()
+
+	if task.IsStart {
+		return nil
+	}
+
 	task.cmd = exec.Command("wget", "-c", task.Url, "-O", task.SaveFilePathname, "-o", "/dev/stdout")
 	stdout, err := task.cmd.StdoutPipe()
 	if err != nil {
@@ -32,25 +41,42 @@ func (task *Task) Start() error {
 		for true {
 			line, _, _ := reader.ReadLine()
 			outputStr := string(line)
-			fmt.Println(outputStr)
 			endIndex := strings.Index(outputStr, "%")
 			if endIndex == -1 {
 				continue
 			}
 
-			process := strings.TrimSpace(outputStr[endIndex-3 : endIndex])
-			processInt, err := strconv.Atoi(process)
+			progress := strings.TrimSpace(outputStr[endIndex-3 : endIndex])
+			progressInt, err := strconv.Atoi(progress)
 			if err != nil {
 				continue
 			}
 
-			task.Process = uint(processInt)
+			task.Progress = uint(progressInt)
 		}
 	}(reader)
+
+	task.IsStart = true
 
 	return nil
 }
 
 func (task *Task) Stop() error {
-	return task.cmd.Process.Kill()
+	task.Lock()
+	defer task.Unlock()
+
+	if !task.IsStart {
+		return nil
+	}
+
+	err := task.cmd.Process.Kill()
+	if err != nil {
+		return err
+	}
+
+	_ = task.cmd.Wait()
+
+	task.IsStart = false
+
+	return nil
 }

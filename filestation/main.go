@@ -7,6 +7,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/yjp19871013/RPiService/filestation/download_proxy"
+
 	"github.com/yjp19871013/RPiService/filestation/db"
 	"github.com/yjp19871013/RPiService/filestation/dto"
 	"github.com/yjp19871013/RPiService/filestation/router"
@@ -20,6 +22,9 @@ import (
 func main() {
 	db.InitDb()
 	defer db.CloseDb()
+
+	download_proxy.StartProxy()
+	defer download_proxy.StopProxy()
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		err := v.RegisterValidation("url_validator", dto.UrlValidator)

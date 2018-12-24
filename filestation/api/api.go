@@ -5,18 +5,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/yjp19871013/RPiService/filestation/db"
-	"golang.org/x/net/websocket"
-
 	"github.com/yjp19871013/RPiService/filestation/download_proxy"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yjp19871013/RPiService/filestation/dto"
 )
 
-var downloadProxy = download_proxy.NewProxy()
-
-func DownloadFile(c *gin.Context) {
+func AddDownloadFile(c *gin.Context) {
 	var request dto.DownloadFileRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
@@ -30,32 +25,47 @@ func DownloadFile(c *gin.Context) {
 		saveFilename = request.Url[strings.LastIndex(request.Url, "/")+1:]
 	}
 
-	err = downloadProxy.AddTask(request.Url, saveFilename)
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	downloadTask := &db.DownloadTask{
-		Url:              request.Url,
-		SaveFilePathname: request.SaveFilename,
-	}
-
-	err = db.SaveDownloadTask(downloadTask)
+	id, err := download_proxy.GetInstance().AddTask(request.Url, request.SaveFilename)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	response := dto.DownloadFileResponse{
-		ID:           downloadTask.ID,
+		ID:           id,
 		Url:          request.Url,
-		SaveFilename: saveFilename,
+		SaveFilename: request.SaveFilename,
 	}
-
 	c.JSON(http.StatusOK, response)
 }
 
-func DownloadProcessPush(ws *websocket.Conn) {
+func DeleteDownloadFile(c *gin.Context) {
+	var request dto.DeleteDownloadFileRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
 
+	err = download_proxy.GetInstance().DeleteTask(request.ID)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	response := dto.DeleteDownloadFileResponse{
+		ID: request.ID,
+	}
+	c.JSON(http.StatusOK, response)
+}
+
+func DownloadProgressPush(c *gin.Context) {
+	var request dto.DownloadProgressRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
 }

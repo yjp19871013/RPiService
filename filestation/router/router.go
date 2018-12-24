@@ -6,15 +6,19 @@ import (
 )
 
 var (
-	getRouter = map[string][]gin.HandlerFunc{}
+	getRouter = map[string][]gin.HandlerFunc{
+		"/api/file-station/download-proxy/files/download-progress": { /*middleware.JWTValidateMiddleware(), */ api.DownloadProgressPush},
+	}
 
 	postRouter = map[string][]gin.HandlerFunc{
-		"/api/file-station/download-proxy/files": { /*middleware.JWTValidateMiddleware(), */ api.DownloadFile},
+		"/api/file-station/download-proxy/files": { /*middleware.JWTValidateMiddleware(), */ api.AddDownloadFile},
 	}
 
 	patchRouter = map[string][]gin.HandlerFunc{}
 
-	deleteRouter = map[string][]gin.HandlerFunc{}
+	deleteRouter = map[string][]gin.HandlerFunc{
+		"/api/file-station/download-proxy/files": { /*middleware.JWTValidateMiddleware(), */ api.DeleteDownloadFile},
+	}
 )
 
 func InitRouter(r *gin.Engine) {
