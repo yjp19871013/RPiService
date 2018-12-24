@@ -20,10 +20,14 @@ type DeleteDownloadFileResponse struct {
 }
 
 type DownloadProgressRequest struct {
-	ID uint `json:"id" binding:"required"`
+	IDs []uint `json:"ids" binding:"required"`
+}
+
+type DownloadProgress struct {
+	ID       uint `json:"id" binding:"required"`
+	Progress uint `json:"progress" binding:"required"`
 }
 
 type DownloadProgressResponse struct {
-	Url      string `json:"url" binding:"required,url_validator"`
-	Progress string `json:"progress" binding:"required"`
+	Progresses []DownloadProgress
 }

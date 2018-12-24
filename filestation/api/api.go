@@ -27,6 +27,10 @@ func AddDownloadFile(c *gin.Context) {
 
 	id, err := download_proxy.GetInstance().AddTask(request.Url, request.SaveFilename)
 	if err != nil {
+		if err == download_proxy.SavePathnameExistErr {
+			c.AbortWithStatus(http.StatusConflict)
+		}
+
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
@@ -60,7 +64,7 @@ func DeleteDownloadFile(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func DownloadProgressPush(c *gin.Context) {
+func DownloadProgresses(c *gin.Context) {
 	var request dto.DownloadProgressRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
@@ -68,4 +72,19 @@ func DownloadProgressPush(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
+
+	progresses, err := download_proxy.GetInstance().GetProcesses(request.IDs)
+
+	response := &dto.DownloadProgressResponse{
+		Progresses: make([]dto.DownloadProgress, 0),
+	}
+
+	for _, id := range request.IDs {
+		response.Progresses = append(response.Progresses, dto.DownloadProgress{
+			ID:       id,
+			Progress: progresses[id],
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
 }

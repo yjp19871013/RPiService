@@ -26,6 +26,16 @@ func FindDownloadTaskByUrl(url string) (*DownloadTask, error) {
 	return task, nil
 }
 
+func FindDownloadTaskBySaveFilePathname(savePathname string) (*DownloadTask, error) {
+	task := &DownloadTask{}
+	err := db.Where("save_file_pathname = ?", savePathname).First(task).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
+
 func SaveDownloadTask(task *DownloadTask) error {
 	return db.Save(task).Error
 }

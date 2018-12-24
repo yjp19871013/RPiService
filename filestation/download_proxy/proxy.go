@@ -2,7 +2,6 @@ package download_proxy
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -11,11 +10,10 @@ import (
 )
 
 var (
-	AlreadyExistErr = errors.New("Already exits")
-	StartTaskErr    = errors.New("Start task error")
-)
+	SavePathnameExistErr = errors.New("Save pathname has exist")
 
-var downloadProxy *Proxy
+	downloadProxy *Proxy
+)
 
 func StartProxy() {
 	downloadProxy = NewProxy()
@@ -52,11 +50,18 @@ func (proxy *Proxy) AddTask(urlStr string, saveFilePathname string) (uint, error
 	defer proxy.Unlock()
 
 	downloadTask, err := db.FindDownloadTaskByUrl(urlStr)
-	if err != nil {
-		downloadTask = &db.DownloadTask{
-			Url:              urlStr,
-			SaveFilePathname: saveFilePathname,
-		}
+	if err == nil {
+		return downloadTask.ID, nil
+	}
+
+	downloadTask, err = db.FindDownloadTaskBySaveFilePathname(saveFilePathname)
+	if err == nil {
+		return 0, SavePathnameExistErr
+	}
+
+	downloadTask = &db.DownloadTask{
+		Url:              urlStr,
+		SaveFilePathname: saveFilePathname,
 	}
 
 	err = proxy.addTaskWithoutLock(downloadTask)
@@ -96,16 +101,21 @@ func (proxy *Proxy) DeleteTask(id uint) error {
 	return nil
 }
 
-func (proxy *Proxy) GetProgress(id uint) (uint, error) {
+func (proxy *Proxy) GetProcesses(ids []uint) (map[uint]uint, error) {
 	proxy.Lock()
 	defer proxy.Unlock()
 
-	task := proxy.taskMap[id]
-	if task == nil {
-		return 0, fmt.Errorf("No this task")
+	progresses := make(map[uint]uint, 0)
+	for _, id := range ids {
+		task := proxy.taskMap[id]
+		if task != nil {
+			progresses[id] = task.Progress
+		} else {
+			progresses[id] = 0
+		}
 	}
 
-	return task.Progress, nil
+	return progresses, nil
 }
 
 func (proxy *Proxy) start() error {
@@ -146,11 +156,9 @@ func (proxy *Proxy) stop() error {
 }
 
 func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
-	if downloadTask.ID == 0 {
-		err := db.SaveDownloadTask(downloadTask)
-		if err != nil {
-			return err
-		}
+	err := db.SaveDownloadTask(downloadTask)
+	if err != nil {
+		return err
 	}
 
 	task := Task{
@@ -160,7 +168,7 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 
 	err := task.Start()
 	if err != nil {
-		return StartTaskErr
+		return err
 	}
 
 	proxy.taskMap[downloadTask.ID] = &task
