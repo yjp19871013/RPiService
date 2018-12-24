@@ -166,7 +166,7 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 		SaveFilePathname: downloadTask.SaveFilePathname,
 	}
 
-	err := task.Start()
+	err = task.Start()
 	if err != nil {
 		return err
 	}
