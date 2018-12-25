@@ -46,8 +46,9 @@ func AddDownloadFile(c *gin.Context) {
 	response := dto.DownloadFileResponse{
 		ID:           id,
 		Url:          request.Url,
-		SaveFilename: request.SaveFilename,
+		SaveFilename: saveFilename,
 	}
+
 	c.JSON(http.StatusOK, response)
 }
 
