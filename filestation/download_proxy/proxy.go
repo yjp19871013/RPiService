@@ -2,6 +2,7 @@ package download_proxy
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -106,10 +107,23 @@ func (proxy *Proxy) GetProcesses(ids []uint) (map[uint]uint, error) {
 	defer proxy.Unlock()
 
 	progresses := make(map[uint]uint, 0)
+	fmt.Println(proxy.taskMap)
 	for _, id := range ids {
 		task := proxy.taskMap[id]
 		if task != nil {
-			progresses[id] = task.Progress
+			progress := task.GetProgress()
+			if progress == 100 {
+				err := db.DeleteDownloadTask(&db.DownloadTask{ID: id})
+				if err != nil {
+					progresses[id] = progress
+					continue
+				}
+
+				_ = task.Stop()
+				delete(proxy.taskMap, id)
+			}
+
+			progresses[id] = progress
 		} else {
 			progresses[id] = 0
 		}
@@ -161,17 +175,14 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 		return err
 	}
 
-	task := Task{
-		Url:              downloadTask.Url,
-		SaveFilePathname: downloadTask.SaveFilePathname,
-	}
+	task := NewTask(downloadTask.Url, downloadTask.SaveFilePathname)
 
 	err = task.Start()
 	if err != nil {
 		return err
 	}
 
-	proxy.taskMap[downloadTask.ID] = &task
+	proxy.taskMap[downloadTask.ID] = task
 
 	return nil
 }
