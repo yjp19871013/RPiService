@@ -7,7 +7,7 @@ import (
 
 var (
 	getRouter = map[string][]gin.HandlerFunc{
-		"/api/file-station/download-proxy/files/download-progresses": { /*middleware.JWTValidateMiddleware(), */ api.DownloadProgresses},
+		"/api/file-station/download-proxy/files/download-progresses/:ids": { /*middleware.JWTValidateMiddleware(), */ api.DownloadProgresses},
 	}
 
 	postRouter = map[string][]gin.HandlerFunc{

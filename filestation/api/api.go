@@ -3,6 +3,7 @@ package api
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/yjp19871013/RPiService/filestation/download_proxy"
@@ -65,21 +66,27 @@ func DeleteDownloadFile(c *gin.Context) {
 }
 
 func DownloadProgresses(c *gin.Context) {
-	var request dto.DownloadProgressRequest
-	err := c.ShouldBindJSON(&request)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
+	ids := make([]uint, 0)
+	idsStr := strings.Split(c.Param("ids"), ";")
+	for _, id := range idsStr {
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			c.AbortWithStatus(http.StatusBadRequest)
+		}
+
+		ids = append(ids, uint(idInt))
 	}
 
-	progresses, err := download_proxy.GetInstance().GetProcesses(request.IDs)
+	progresses, err := download_proxy.GetInstance().GetProcesses(ids)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
 
 	response := &dto.DownloadProgressResponse{
 		Progresses: make([]dto.DownloadProgress, 0),
 	}
 
-	for _, id := range request.IDs {
+	for _, id := range ids {
 		response.Progresses = append(response.Progresses, dto.DownloadProgress{
 			ID:       id,
 			Progress: progresses[id],

@@ -19,10 +19,6 @@ type DeleteDownloadFileResponse struct {
 	ID uint `json:"id" binding:"required"`
 }
 
-type DownloadProgressRequest struct {
-	IDs []uint `json:"ids" binding:"required"`
-}
-
 type DownloadProgress struct {
 	ID       uint `json:"id" binding:"required"`
 	Progress uint `json:"progress" binding:"required"`
