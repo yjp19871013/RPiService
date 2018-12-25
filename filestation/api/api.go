@@ -87,6 +87,7 @@ func DownloadProgresses(c *gin.Context) {
 	progresses, err := download_proxy.GetInstance().GetProcesses(ids)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
+		return
 	}
 
 	response := &dto.DownloadProgressResponse{
