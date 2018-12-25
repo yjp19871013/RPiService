@@ -23,13 +23,20 @@ func AddDownloadFile(c *gin.Context) {
 
 	saveFilename := request.SaveFilename
 	if len(saveFilename) == 0 {
-		saveFilename = request.Url[strings.LastIndex(request.Url, "/")+1:]
+		startIndex := strings.LastIndex(request.Url, "/") + 1
+		endIndex := strings.LastIndex(request.Url, "?")
+		if endIndex != -1 {
+			saveFilename = request.Url[startIndex:endIndex]
+		} else {
+			saveFilename = request.Url[startIndex:]
+		}
 	}
 
-	id, err := download_proxy.GetInstance().AddTask(request.Url, request.SaveFilename)
+	id, err := download_proxy.GetInstance().AddTask(request.Url, saveFilename)
 	if err != nil {
 		if err == download_proxy.SavePathnameExistErr {
 			c.AbortWithStatus(http.StatusConflict)
+			return
 		}
 
 		c.AbortWithStatus(http.StatusInternalServerError)
