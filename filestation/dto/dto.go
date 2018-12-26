@@ -11,10 +11,6 @@ type DownloadFileResponse struct {
 	SaveFilename string `json:"saveFilename" binding:"required"`
 }
 
-type DeleteDownloadFileRequest struct {
-	ID uint `json:"id" binding:"required"`
-}
-
 type DeleteDownloadFileResponse struct {
 	ID uint `json:"id" binding:"required"`
 }

@@ -53,22 +53,21 @@ func AddDownloadFile(c *gin.Context) {
 }
 
 func DeleteDownloadFile(c *gin.Context) {
-	var request dto.DeleteDownloadFileRequest
-	err := c.ShouldBindJSON(&request)
+	id := c.Param("id")
+	idInt, err := strconv.Atoi(id)
 	if err != nil {
-		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	err = download_proxy.GetInstance().DeleteTask(request.ID)
+	err = download_proxy.GetInstance().DeleteTask(uint(idInt))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
 	response := dto.DeleteDownloadFileResponse{
-		ID: request.ID,
+		ID: uint(idInt),
 	}
 	c.JSON(http.StatusOK, response)
 }
@@ -80,6 +79,7 @@ func DownloadProgresses(c *gin.Context) {
 		idInt, err := strconv.Atoi(id)
 		if err != nil {
 			c.AbortWithStatus(http.StatusBadRequest)
+			return
 		}
 
 		ids = append(ids, uint(idInt))
