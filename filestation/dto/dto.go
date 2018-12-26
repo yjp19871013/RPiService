@@ -1,11 +1,11 @@
 package dto
 
-type DownloadFileRequest struct {
+type AddDownloadTaskRequest struct {
 	Url          string `json:"url" binding:"required,url_validator"`
 	SaveFilename string `json:"saveFilename"`
 }
 
-type DownloadFileResponse struct {
+type DownloadTask struct {
 	ID           uint   `json:"id" binding:"required"`
 	Url          string `json:"url" binding:"required,url_validator"`
 	SaveFilename string `json:"saveFilename" binding:"required"`
@@ -20,6 +20,10 @@ type DownloadProgress struct {
 	Progress uint `json:"progress" binding:"required"`
 }
 
-type DownloadProgressResponse struct {
-	Progresses []DownloadProgress
+type GetDownloadProgressResponse struct {
+	Progresses []DownloadProgress `json:"progresses" binding:"required"`
+}
+
+type GetAllTaskResponse struct {
+	Tasks []DownloadTask `json:"tasks" binding:"required"`
 }

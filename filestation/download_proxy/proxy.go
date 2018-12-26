@@ -46,6 +46,18 @@ func NewProxy() *Proxy {
 	}
 }
 
+func (proxy *Proxy) GetAllTasks() ([]db.DownloadTask, error) {
+	proxy.Lock()
+	defer proxy.Unlock()
+
+	tasks, err := db.FindAllDownloadTasks()
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
 func (proxy *Proxy) AddTask(urlStr string, saveFilePathname string) (uint, error) {
 	proxy.Lock()
 	defer proxy.Unlock()

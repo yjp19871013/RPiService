@@ -7,17 +7,18 @@ import (
 
 var (
 	getRouter = map[string][]gin.HandlerFunc{
-		"/api/file-station/download-proxy/files/download-progresses/:ids": { /*middleware.JWTValidateMiddleware(), */ api.DownloadProgresses},
+		"/api/file-station/download-proxy/tasks":                          { /*middleware.JWTValidateMiddleware(), */ api.GetDownloadTasks},
+		"/api/file-station/download-proxy/tasks/download-progresses/:ids": { /*middleware.JWTValidateMiddleware(), */ api.DownloadTaskProgresses},
 	}
 
 	postRouter = map[string][]gin.HandlerFunc{
-		"/api/file-station/download-proxy/files": { /*middleware.JWTValidateMiddleware(), */ api.AddDownloadFile},
+		"/api/file-station/download-proxy/tasks": { /*middleware.JWTValidateMiddleware(), */ api.AddDownloadTask},
 	}
 
 	patchRouter = map[string][]gin.HandlerFunc{}
 
 	deleteRouter = map[string][]gin.HandlerFunc{
-		"/api/file-station/download-proxy/files/:id": { /*middleware.JWTValidateMiddleware(), */ api.DeleteDownloadFile},
+		"/api/file-station/download-proxy/tasks/:id": { /*middleware.JWTValidateMiddleware(), */ api.DeleteDownloadTask},
 	}
 )
 
