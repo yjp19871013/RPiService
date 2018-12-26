@@ -17,11 +17,12 @@ type Task struct {
 	progress         uint
 	isStart          bool
 
-	logFile *os.File
-	cmd     *exec.Cmd
+	logFile      *os.File
+	cmd          *exec.Cmd
+	completeChan chan bool
 }
 
-func NewTask(urlStr string, saveFilePathname string) *Task {
+func NewTask(urlStr string, saveFilePathname string, completeChan chan bool) *Task {
 	f, err := ioutil.TempFile("/tmp", "download_proxy")
 	if err != nil {
 		return nil
@@ -31,6 +32,7 @@ func NewTask(urlStr string, saveFilePathname string) *Task {
 		Url:              urlStr,
 		SaveFilePathname: saveFilePathname,
 		logFile:          f,
+		completeChan:     completeChan,
 	}
 }
 
@@ -84,10 +86,6 @@ func (task *Task) ParseProgress() {
 	for true {
 		content, _ := ioutil.ReadAll(task.logFile)
 		outputStr := string(content)
-		if strings.Count(outputStr, "%") == 0 {
-			task.progress = 100
-			break
-		}
 
 		endIndex := strings.LastIndex(outputStr, "%")
 		if endIndex == -1 {
@@ -101,5 +99,9 @@ func (task *Task) ParseProgress() {
 		}
 
 		task.progress = uint(progressInt)
+
+		if task.progress == 100 {
+			task.completeChan <- true
+		}
 	}
 }
