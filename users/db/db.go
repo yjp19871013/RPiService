@@ -1,8 +1,6 @@
 package db
 
 import (
-	"log"
-
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/yjp19871013/RPiService/utils"
@@ -46,14 +44,17 @@ func InitDb() {
 }
 
 func CloseDb() {
-	db.Close()
+	_ = db.Close()
 }
 
 func createPermissions() {
 	superPermission, err := FindPermissionByName(SuperPermissionName)
 	if err != nil {
-		superPermission.Name = SuperPermissionName
-		superPermission.Description = SuperPermissionDesc
+		superPermission = &Permission{
+			Name:        SuperPermissionName,
+			Description: SuperPermissionDesc,
+		}
+
 		err = SavePermission(superPermission)
 		if err != nil {
 			panic("Create super permission error")
@@ -62,9 +63,11 @@ func createPermissions() {
 
 	commonPermission, err := FindPermissionByName(CommonPermissionName)
 	if err != nil {
-		log.Println(err, commonPermission)
-		commonPermission.Name = CommonPermissionName
-		commonPermission.Description = CommonPermissionDesc
+		commonPermission = &Permission{
+			Name:        CommonPermissionName,
+			Description: CommonPermissionDesc,
+		}
+
 		err = SavePermission(commonPermission)
 		if err != nil {
 			panic("Create common permission error")
@@ -80,9 +83,12 @@ func createRoles() {
 
 	adminRole, err := FindRoleByName(AdminRoleName)
 	if err != nil {
-		adminRole.Name = AdminRoleName
-		adminRole.Description = AdminRoleDesc
-		adminRole.Permissions = []Permission{*superPermission}
+		adminRole = &Role{
+			Name:        AdminRoleName,
+			Description: AdminRoleDesc,
+			Permissions: []Permission{*superPermission},
+		}
+
 		err = SaveRole(adminRole)
 		if err != nil {
 			panic("Create admin role failed")
@@ -96,9 +102,12 @@ func createRoles() {
 
 	commonRole, err := FindRoleByName(CommonRoleName)
 	if err != nil {
-		commonRole.Name = CommonRoleName
-		commonRole.Description = CommonRoleDesc
-		commonRole.Permissions = []Permission{*commonPermission}
+		commonRole = &Role{
+			Name:        CommonRoleName,
+			Description: CommonRoleDesc,
+			Permissions: []Permission{*commonPermission},
+		}
+
 		err = SaveRole(commonRole)
 		if err != nil {
 			panic("Create common role failed")
@@ -114,9 +123,12 @@ func createUsers() {
 
 	adminUser, err := FindUserByEmail(AdminUserEmail)
 	if err != nil {
-		adminUser.Email = AdminUserEmail
-		adminUser.Password = utils.MD5(AdminUserPassword)
-		adminUser.Roles = []Role{*adminRole}
+		adminUser = &User{
+			Email:    AdminUserEmail,
+			Password: utils.MD5(AdminUserPassword),
+			Roles:    []Role{*adminRole},
+		}
+
 		err := SaveUser(adminUser)
 		if err != nil {
 			panic("Create admin user failed")
