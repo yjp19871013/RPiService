@@ -8,8 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/yjp19871013/RPiService/filestation/db"
-
+	"github.com/yjp19871013/RPiService/db"
 	"github.com/yjp19871013/RPiService/filestation/download_proxy"
 	"github.com/yjp19871013/RPiService/utils"
 
@@ -48,7 +47,6 @@ func GetDownloadTasks(c *gin.Context) {
 		Tasks: make([]dto.DownloadTask, 0),
 	}
 
-	log.Println(tasks)
 	for _, task := range tasks {
 		response.Tasks = append(response.Tasks, dto.DownloadTask{
 			ID:           task.ID,

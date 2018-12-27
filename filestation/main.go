@@ -7,9 +7,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/yjp19871013/RPiService/db"
 	"github.com/yjp19871013/RPiService/filestation/download_proxy"
 
-	"github.com/yjp19871013/RPiService/filestation/db"
 	"github.com/yjp19871013/RPiService/filestation/dto"
 	"github.com/yjp19871013/RPiService/filestation/router"
 

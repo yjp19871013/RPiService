@@ -7,9 +7,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/yjp19871013/RPiService/db"
 	"github.com/yjp19871013/RPiService/users/dto"
 
-	"github.com/yjp19871013/RPiService/users/db"
 	"github.com/yjp19871013/RPiService/users/router"
 
 	"github.com/gin-gonic/gin"

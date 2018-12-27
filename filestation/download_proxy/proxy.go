@@ -6,7 +6,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/yjp19871013/RPiService/filestation/db"
+	"github.com/yjp19871013/RPiService/db"
 )
 
 var (

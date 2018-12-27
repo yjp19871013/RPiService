@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/yjp19871013/RPiService/db"
 	"github.com/yjp19871013/RPiService/users/dto"
 
 	"github.com/yjp19871013/RPiService/users/jwt_tools"
@@ -13,8 +14,6 @@ import (
 	"github.com/yjp19871013/RPiService/users/settings"
 
 	"github.com/yjp19871013/RPiService/utils"
-
-	"github.com/yjp19871013/RPiService/users/db"
 
 	"github.com/gin-gonic/gin"
 )

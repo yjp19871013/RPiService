@@ -1,10 +1,11 @@
 package jwt_tools
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/yjp19871013/RPiService/users/db"
+	"github.com/yjp19871013/RPiService/db"
 	"github.com/yjp19871013/RPiService/users/settings"
 
 	"github.com/dgrijalva/jwt-go"
@@ -35,10 +36,27 @@ func IsJWTValidate(req *http.Request) bool {
 		return false
 	}
 
-	user, err := db.FindUserByToken(token.Raw)
-	if user.ID == 0 {
+	_, err = db.FindUserByToken(token.Raw)
+	if err != nil {
 		return false
 	}
 
 	return true
+}
+
+func GetJWTUser(req *http.Request) (*db.User, error) {
+	token, err := request.ParseFromRequest(req, request.AuthorizationHeaderExtractor,
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(settings.SecretKey), nil
+		})
+	if err != nil || !token.Valid {
+		return nil, fmt.Errorf("token parse error")
+	}
+
+	user, err := db.FindUserByToken(token.Raw)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

@@ -29,12 +29,14 @@ var (
 
 func InitDb() {
 	var err error
-	db, err = gorm.Open("mysql", "root:root@/rpi_users?charset=utf8&parseTime=True&loc=Local")
+	db, err = gorm.Open("mysql", "root:root@/rpi_service?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
 		panic(err.Error())
 	}
 
-	db.AutoMigrate(&Permission{}, &Role{}, &User{}, &ValidateCode{})
+	db.AutoMigrate(&Permission{}, &Role{},
+		&User{}, &ValidateCode{},
+		&DownloadTask{}, &FileInfo{})
 
 	db.LogMode(true)
 

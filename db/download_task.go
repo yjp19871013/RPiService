@@ -1,11 +1,14 @@
 package db
 
-import "log"
+import (
+	"log"
+)
 
 type DownloadTask struct {
 	ID               uint   `gorm:"primary_key"`
 	Url              string `gorm:"unique;not null"`
 	SaveFilePathname string `gorm:"unique;not null"`
+	User             User
 }
 
 func FindAllDownloadTasks() ([]DownloadTask, error) {
