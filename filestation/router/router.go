@@ -3,7 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/yjp19871013/RPiService/filestation/api"
-	"github.com/yjp19871013/RPiService/users/middleware"
+	"github.com/yjp19871013/RPiService/middleware"
 )
 
 var (

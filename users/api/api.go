@@ -9,7 +9,7 @@ import (
 	"github.com/yjp19871013/RPiService/db"
 	"github.com/yjp19871013/RPiService/users/dto"
 
-	"github.com/yjp19871013/RPiService/users/jwt_tools"
+	"github.com/yjp19871013/RPiService/jwt_tools"
 
 	"github.com/yjp19871013/RPiService/users/settings"
 

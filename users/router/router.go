@@ -2,8 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/yjp19871013/RPiService/middleware"
 	"github.com/yjp19871013/RPiService/users/api"
-	"github.com/yjp19871013/RPiService/users/middleware"
 )
 
 var (
