@@ -9,6 +9,7 @@ var (
 	getRouter = map[string][]gin.HandlerFunc{
 		"/api/file-station/download-proxy/tasks":                          { /*middleware.JWTValidateMiddleware(), */ api.GetDownloadTasks},
 		"/api/file-station/download-proxy/tasks/download-progresses/:ids": { /*middleware.JWTValidateMiddleware(), */ api.DownloadTaskProgresses},
+		"/api/file-station/download-proxy/files":                          { /*middleware.JWTValidateMiddleware(), */ api.GetFiles},
 	}
 
 	postRouter = map[string][]gin.HandlerFunc{

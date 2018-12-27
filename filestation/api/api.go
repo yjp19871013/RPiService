@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/yjp19871013/RPiService/filestation/db"
+
 	"github.com/yjp19871013/RPiService/filestation/download_proxy"
 	"github.com/yjp19871013/RPiService/utils"
 
@@ -145,6 +147,26 @@ func DownloadTaskProgresses(c *gin.Context) {
 		response.Progresses = append(response.Progresses, dto.DownloadProgress{
 			ID:       id,
 			Progress: progresses[id],
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func GetFiles(c *gin.Context) {
+	infos, err := db.FindAllFileInfos()
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	response := dto.GetAllFileInfosResponse{
+		FileInfos: make([]dto.FileInfo, 0),
+	}
+	for _, info := range infos {
+		response.FileInfos = append(response.FileInfos, dto.FileInfo{
+			ID:       info.ID,
+			FileName: filepath.Base(info.FilePathname),
 		})
 	}
 

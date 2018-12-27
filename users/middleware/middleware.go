@@ -15,6 +15,7 @@ func JWTValidateMiddleware() gin.HandlerFunc {
 		if !jwt_tools.IsJWTValidate(c.Request) {
 			c.JSON(http.StatusUnauthorized, dto.TokenResponse{"无效的token"})
 			c.Abort()
+			return
 		}
 
 		c.Next()

@@ -27,3 +27,12 @@ type GetDownloadProgressResponse struct {
 type GetAllTaskResponse struct {
 	Tasks []DownloadTask `json:"tasks" binding:"required"`
 }
+
+type FileInfo struct {
+	ID       uint   `json:"id" binding:"required"`
+	FileName string `json:"fileName" binding:"required"`
+}
+
+type GetAllFileInfosResponse struct {
+	FileInfos []FileInfo `json:"fileInfos" binding:"required"`
+}
