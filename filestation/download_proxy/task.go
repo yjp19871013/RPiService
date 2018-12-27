@@ -1,13 +1,14 @@
 package download_proxy
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Task struct {
@@ -44,9 +45,9 @@ func (task *Task) Start() error {
 		return nil
 	}
 
-	fmt.Println(task.logFile.Name())
+	log.Println(task.logFile.Name())
 
-	task.cmd = exec.Command("wget", "-c", task.Url, "-O", task.SaveFilePathname, "-o", task.logFile.Name())
+	task.cmd = exec.Command("wget", "-c", task.Url, "-O", task.SaveFilePathname, "-o", task.logFile.Name(), "-v")
 	err := task.cmd.Start()
 	if err != nil {
 		return err
@@ -102,6 +103,9 @@ func (task *Task) ParseProgress() {
 
 		if task.progress == 100 {
 			task.completeChan <- true
+			return
 		}
+
+		time.Sleep(1 * time.Second)
 	}
 }
