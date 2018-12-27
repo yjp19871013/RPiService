@@ -1,4 +1,4 @@
-package api
+package users
 
 import (
 	"log"
@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/yjp19871013/RPiService/api/users/dto"
+	"github.com/yjp19871013/RPiService/settings"
+
 	"github.com/yjp19871013/RPiService/db"
-	"github.com/yjp19871013/RPiService/users/dto"
 
 	"github.com/yjp19871013/RPiService/jwt_tools"
-
-	"github.com/yjp19871013/RPiService/users/settings"
 
 	"github.com/yjp19871013/RPiService/utils"
 

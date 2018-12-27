@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/yjp19871013/RPiService/users/dto"
+	"github.com/yjp19871013/RPiService/api/users/dto"
 
 	"github.com/yjp19871013/RPiService/jwt_tools"
 

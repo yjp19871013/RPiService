@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/yjp19871013/RPiService/settings"
+
 	"github.com/yjp19871013/RPiService/db"
-	"github.com/yjp19871013/RPiService/users/settings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dgrijalva/jwt-go/request"

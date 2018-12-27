@@ -7,11 +7,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/yjp19871013/RPiService/api/filestation/download_proxy"
 	"github.com/yjp19871013/RPiService/db"
-	"github.com/yjp19871013/RPiService/filestation/download_proxy"
+	"github.com/yjp19871013/RPiService/router"
 
-	"github.com/yjp19871013/RPiService/filestation/dto"
-	"github.com/yjp19871013/RPiService/filestation/router"
+	"github.com/yjp19871013/RPiService/api/filestation/dto"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -38,7 +38,7 @@ func main() {
 	router.InitRouter(r)
 
 	srv := &http.Server{
-		Addr:    ":10002",
+		Addr:    ":10001",
 		Handler: r,
 	}
 

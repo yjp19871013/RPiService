@@ -1,4 +1,4 @@
-package api
+package filestation
 
 import (
 	"log"
@@ -8,12 +8,13 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/yjp19871013/RPiService/api/filestation/download_proxy"
+	"github.com/yjp19871013/RPiService/api/filestation/dto"
+
 	"github.com/yjp19871013/RPiService/db"
-	"github.com/yjp19871013/RPiService/filestation/download_proxy"
 	"github.com/yjp19871013/RPiService/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/yjp19871013/RPiService/filestation/dto"
 )
 
 const (
