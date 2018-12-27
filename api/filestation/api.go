@@ -8,36 +8,20 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/yjp19871013/RPiService/utils"
+
 	"github.com/yjp19871013/RPiService/middleware"
 
 	"github.com/yjp19871013/RPiService/api/filestation/download_proxy"
 	"github.com/yjp19871013/RPiService/api/filestation/dto"
 
-	"github.com/yjp19871013/RPiService/db"
-	"github.com/yjp19871013/RPiService/utils"
-
 	"github.com/gin-gonic/gin"
+	"github.com/yjp19871013/RPiService/db"
 )
 
 const (
 	saveDir = "files/"
 )
-
-func init() {
-	absSaveDir, err := filepath.Abs(saveDir)
-	if err != nil {
-		panic("download proxy save dir abs error")
-	}
-
-	exist, err := utils.PathExists(absSaveDir)
-	if err != nil {
-		panic("download proxy save dir PathExists error")
-	}
-
-	if !exist {
-		_ = os.MkdirAll(absSaveDir, os.ModeDir|os.ModePerm)
-	}
-}
 
 func GetDownloadTasks(c *gin.Context) {
 	userContext := c.Value(middleware.ContextUserKey)
@@ -78,8 +62,22 @@ func AddDownloadTask(c *gin.Context) {
 
 	user, _ := userContext.(*db.User)
 
+	absSaveDir, err := filepath.Abs(user.Email + "/" + saveDir)
+	if err != nil {
+		panic("download proxy save dir abs error")
+	}
+
+	exist, err := utils.PathExists(absSaveDir)
+	if err != nil {
+		panic("download proxy save dir PathExists error")
+	}
+
+	if !exist {
+		_ = os.MkdirAll(absSaveDir, os.ModeDir|os.ModePerm)
+	}
+
 	var request dto.AddDownloadTaskRequest
-	err := c.ShouldBindJSON(&request)
+	err = c.ShouldBindJSON(&request)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -97,7 +95,7 @@ func AddDownloadTask(c *gin.Context) {
 		}
 	}
 
-	id, err := download_proxy.GetInstance().AddTask(request.Url, saveDir+saveFilename, user)
+	id, err := download_proxy.GetInstance().AddTask(request.Url, absSaveDir+"/"+saveFilename, user)
 	if err != nil {
 		if err == download_proxy.SavePathnameExistErr {
 			c.AbortWithStatus(http.StatusConflict)
