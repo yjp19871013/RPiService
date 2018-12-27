@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"regexp"
 
+	"github.com/gin-gonic/gin/binding"
 	"gopkg.in/go-playground/validator.v8"
 )
 
@@ -22,4 +23,13 @@ func EmailValidator(
 	}
 
 	return false
+}
+
+func init() {
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		err := v.RegisterValidation("email_validator", EmailValidator)
+		if err != nil {
+			log.Println("err:", err)
+		}
+	}
 }

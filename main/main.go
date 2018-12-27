@@ -11,11 +11,7 @@ import (
 	"github.com/yjp19871013/RPiService/db"
 	"github.com/yjp19871013/RPiService/router"
 
-	"github.com/yjp19871013/RPiService/api/filestation/dto"
-
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	validator "gopkg.in/go-playground/validator.v8"
 	DEATH "gopkg.in/vrecan/death.v3"
 )
 
@@ -25,13 +21,6 @@ func main() {
 
 	download_proxy.StartProxy()
 	defer download_proxy.StopProxy()
-
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		err := v.RegisterValidation("url_validator", dto.UrlValidator)
-		if err != nil {
-			log.Println("err:", err)
-		}
-	}
 
 	r := gin.Default()
 
@@ -49,7 +38,7 @@ func main() {
 	}()
 
 	death := DEATH.NewDeath(syscall.SIGINT, syscall.SIGTERM)
-	death.WaitForDeath()
+	_ = death.WaitForDeath()
 	log.Println("Shutdown Server ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
