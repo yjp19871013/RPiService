@@ -16,11 +16,11 @@ func InitDb() {
 		panic(err.Error())
 	}
 
-	db.AutoMigrate(&DownloadTask{})
+	db.AutoMigrate(&DownloadTask{}, &FileInfo{})
 
 	db.LogMode(true)
 }
 
 func CloseDb() {
-	db.Close()
+	_ = db.Close()
 }

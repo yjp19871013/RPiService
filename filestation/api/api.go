@@ -3,14 +3,37 @@ package api
 import (
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/yjp19871013/RPiService/filestation/download_proxy"
+	"github.com/yjp19871013/RPiService/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yjp19871013/RPiService/filestation/dto"
 )
+
+const (
+	saveDir = "files/"
+)
+
+func init() {
+	absSaveDir, err := filepath.Abs(saveDir)
+	if err != nil {
+		panic("download proxy save dir abs error")
+	}
+
+	exist, err := utils.PathExists(absSaveDir)
+	if err != nil {
+		panic("download proxy save dir PathExists error")
+	}
+
+	if !exist {
+		_ = os.MkdirAll(absSaveDir, os.ModeDir|os.ModePerm)
+	}
+}
 
 func GetDownloadTasks(c *gin.Context) {
 	tasks, err := download_proxy.GetInstance().GetAllTasks()
@@ -23,11 +46,12 @@ func GetDownloadTasks(c *gin.Context) {
 		Tasks: make([]dto.DownloadTask, 0),
 	}
 
+	log.Println(tasks)
 	for _, task := range tasks {
 		response.Tasks = append(response.Tasks, dto.DownloadTask{
 			ID:           task.ID,
 			Url:          task.Url,
-			SaveFilename: task.SaveFilePathname,
+			SaveFilename: filepath.Base(task.SaveFilePathname),
 		})
 	}
 
@@ -54,7 +78,7 @@ func AddDownloadTask(c *gin.Context) {
 		}
 	}
 
-	id, err := download_proxy.GetInstance().AddTask(request.Url, saveFilename)
+	id, err := download_proxy.GetInstance().AddTask(request.Url, saveDir+saveFilename)
 	if err != nil {
 		if err == download_proxy.SavePathnameExistErr {
 			c.AbortWithStatus(http.StatusConflict)

@@ -15,9 +15,9 @@ type Task struct {
 	sync.Mutex
 	Url              string
 	SaveFilePathname string
-	progress         uint
-	isStart          bool
 
+	progress     uint
+	isStart      bool
 	logFile      *os.File
 	cmd          *exec.Cmd
 	completeChan chan bool

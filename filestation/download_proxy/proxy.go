@@ -11,8 +11,7 @@ import (
 
 var (
 	SavePathnameExistErr = errors.New("Save pathname has exist")
-
-	downloadProxy *Proxy
+	downloadProxy        *Proxy
 )
 
 func StartProxy() {
@@ -61,9 +60,14 @@ func (proxy *Proxy) AddTask(urlStr string, saveFilePathname string) (uint, error
 	proxy.Lock()
 	defer proxy.Unlock()
 
+	_, err := db.FindFileInfoByFilePathname(saveFilePathname)
+	if err == nil {
+		return 0, SavePathnameExistErr
+	}
+
 	downloadTask, err := db.FindDownloadTaskByUrl(urlStr)
 	if err == nil {
-		return downloadTask.ID, nil
+		return 0, SavePathnameExistErr
 	}
 
 	downloadTask, err = db.FindDownloadTaskBySaveFilePathname(saveFilePathname)
@@ -184,6 +188,16 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 				proxy.Lock()
 
 				if complete {
+					fileInfo := &db.FileInfo{
+						FilePathname: task.SaveFilePathname,
+					}
+
+					err = db.SaveFileInfo(fileInfo)
+					if err != nil {
+						proxy.Unlock()
+						continue
+					}
+
 					err := db.DeleteDownloadTask(&db.DownloadTask{ID: id})
 					if err != nil {
 						proxy.Unlock()

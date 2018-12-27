@@ -5,7 +5,7 @@ import "log"
 type DownloadTask struct {
 	ID               uint   `gorm:"primary_key"`
 	Url              string `gorm:"unique;not null"`
-	SaveFilePathname string `gorm:"not null"`
+	SaveFilePathname string `gorm:"unique;not null"`
 }
 
 func FindAllDownloadTasks() ([]DownloadTask, error) {
