@@ -28,23 +28,6 @@ func NewJWT(SecretKey string, exp time.Duration) (string, error) {
 	return tokenString, nil
 }
 
-func IsJWTValidate(req *http.Request) bool {
-	token, err := request.ParseFromRequest(req, request.AuthorizationHeaderExtractor,
-		func(token *jwt.Token) (interface{}, error) {
-			return []byte(settings.SecretKey), nil
-		})
-	if err != nil || !token.Valid {
-		return false
-	}
-
-	_, err = db.FindUserByToken(token.Raw)
-	if err != nil {
-		return false
-	}
-
-	return true
-}
-
 func GetJWTUser(req *http.Request) (*db.User, error) {
 	token, err := request.ParseFromRequest(req, request.AuthorizationHeaderExtractor,
 		func(token *jwt.Token) (interface{}, error) {

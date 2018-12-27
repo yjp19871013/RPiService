@@ -11,6 +11,8 @@ type User struct {
 	Password string `gorm:"not null"`
 	Token    string `gorm:"not null"`
 	Roles    []Role `gorm:"many2many:user_roles"`
+
+	DownloadTask []DownloadTask
 }
 
 func FindUserByEmail(email string) (*User, error) {

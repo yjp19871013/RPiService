@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/yjp19871013/RPiService/middleware"
+
 	"github.com/yjp19871013/RPiService/api/filestation/download_proxy"
 	"github.com/yjp19871013/RPiService/api/filestation/dto"
 
@@ -38,7 +40,15 @@ func init() {
 }
 
 func GetDownloadTasks(c *gin.Context) {
-	tasks, err := download_proxy.GetInstance().GetAllTasks()
+	userContext := c.Value(middleware.ContextUserKey)
+	if userContext == nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	user, _ := userContext.(*db.User)
+
+	tasks, err := download_proxy.GetInstance().GetUserTasks(user)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -60,6 +70,14 @@ func GetDownloadTasks(c *gin.Context) {
 }
 
 func AddDownloadTask(c *gin.Context) {
+	userContext := c.Value(middleware.ContextUserKey)
+	if userContext == nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	user, _ := userContext.(*db.User)
+
 	var request dto.AddDownloadTaskRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
@@ -79,7 +97,7 @@ func AddDownloadTask(c *gin.Context) {
 		}
 	}
 
-	id, err := download_proxy.GetInstance().AddTask(request.Url, saveDir+saveFilename)
+	id, err := download_proxy.GetInstance().AddTask(request.Url, saveDir+saveFilename, user)
 	if err != nil {
 		if err == download_proxy.SavePathnameExistErr {
 			c.AbortWithStatus(http.StatusConflict)
@@ -100,6 +118,16 @@ func AddDownloadTask(c *gin.Context) {
 }
 
 func DeleteDownloadTask(c *gin.Context) {
+	userContext := c.Value(middleware.ContextUserKey)
+	if userContext == nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	user, _ := userContext.(*db.User)
+
+	log.Println(user)
+
 	id := c.Param("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
@@ -120,6 +148,16 @@ func DeleteDownloadTask(c *gin.Context) {
 }
 
 func DownloadTaskProgresses(c *gin.Context) {
+	userContext := c.Value(middleware.ContextUserKey)
+	if userContext == nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	user, _ := userContext.(*db.User)
+
+	log.Println(user)
+
 	ids := make([]uint, 0)
 	idsStr := strings.Split(c.Param("ids"), ";")
 	for _, id := range idsStr {
@@ -153,6 +191,16 @@ func DownloadTaskProgresses(c *gin.Context) {
 }
 
 func GetFiles(c *gin.Context) {
+	userContext := c.Value(middleware.ContextUserKey)
+	if userContext == nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	user, _ := userContext.(*db.User)
+
+	log.Println(user)
+
 	infos, err := db.FindAllFileInfos()
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)

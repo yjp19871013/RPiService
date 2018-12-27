@@ -3,6 +3,7 @@ package users
 import (
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -165,6 +166,8 @@ func Register(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
+
+	_ = os.Mkdir(newUser.Email, os.ModeDir|os.ModePerm)
 
 	c.AbortWithStatus(http.StatusOK)
 }

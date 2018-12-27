@@ -6,14 +6,25 @@ import (
 
 type DownloadTask struct {
 	ID               uint   `gorm:"primary_key"`
-	Url              string `gorm:"unique;not null"`
+	Url              string `gorm:"not null"`
 	SaveFilePathname string `gorm:"unique;not null"`
-	User             User
+
+	UserId uint
 }
 
 func FindAllDownloadTasks() ([]DownloadTask, error) {
 	tasks := make([]DownloadTask, 0)
 	err := db.Find(&tasks).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
+func FindDownloadTasksByUser(user *User) ([]DownloadTask, error) {
+	tasks := make([]DownloadTask, 0)
+	err := db.Model(user).Related(&tasks).Error
 	if err != nil {
 		return nil, err
 	}
