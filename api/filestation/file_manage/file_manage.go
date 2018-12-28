@@ -2,6 +2,7 @@ package file_manage
 
 import (
 	"net/http"
+	"os"
 	"path/filepath"
 	"strconv"
 
@@ -81,4 +82,48 @@ func DownloadFile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func DeleteFile(c *gin.Context) {
+	userContext := c.Value(middleware.ContextUserKey)
+	if userContext == nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	user, _ := userContext.(*db.User)
+
+	id := c.Param("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	fileInfo, err := db.FindFileInfoById(uint(idInt))
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	if fileInfo.UserId != user.ID {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	err = os.Remove(fileInfo.FilePathname)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	err = db.DeleteFileInfo(fileInfo)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.DeleteFileResponse{
+		ID: fileInfo.ID,
+	})
 }

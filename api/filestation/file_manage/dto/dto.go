@@ -14,3 +14,7 @@ type GetAllFileInfosResponse struct {
 type DownloadFileResponse struct {
 	StaticUrl string `json:"staticUrl" binding:"required"`
 }
+
+type DeleteFileResponse struct {
+	ID uint `json:"id" binding:"required"`
+}

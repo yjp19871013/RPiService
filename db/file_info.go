@@ -42,3 +42,7 @@ func FindFileInfoById(id uint) (*FileInfo, error) {
 
 	return fileInfo, nil
 }
+
+func DeleteFileInfo(info *FileInfo) error {
+	return db.Delete(info).Error
+}
