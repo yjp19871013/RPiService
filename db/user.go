@@ -13,6 +13,7 @@ type User struct {
 	Roles    []Role `gorm:"many2many:user_roles"`
 
 	DownloadTask []DownloadTask
+	FileInfos    []FileInfo
 }
 
 func FindUserByEmail(email string) (*User, error) {

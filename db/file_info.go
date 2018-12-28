@@ -3,15 +3,17 @@ package db
 type FileInfo struct {
 	ID           uint   `gorm:"primary_key"`
 	FilePathname string `gorm:"unique;not null"`
+
+	UserId uint
 }
 
 func SaveFileInfo(info *FileInfo) error {
 	return db.Save(info).Error
 }
 
-func FindAllFileInfos() ([]FileInfo, error) {
+func FindFileInfosByUser(user *User) ([]FileInfo, error) {
 	infos := make([]FileInfo, 0)
-	err := db.Find(&infos).Error
+	err := db.Model(&user).Related(&infos).Error
 	if err != nil {
 		return nil, err
 	}

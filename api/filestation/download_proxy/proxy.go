@@ -56,11 +56,23 @@ func (proxy *Proxy) GetAllTasks() ([]db.DownloadTask, error) {
 	return tasks, nil
 }
 
-func (proxy *Proxy) GetUserTasks(user *db.User) ([]db.DownloadTask, error) {
+func (proxy *Proxy) GetTasksByUser(user *db.User) ([]db.DownloadTask, error) {
 	proxy.Lock()
 	defer proxy.Unlock()
 
 	tasks, err := db.FindDownloadTasksByUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
+func (proxy *Proxy) GetTaskById(id uint) (*db.DownloadTask, error) {
+	proxy.Lock()
+	defer proxy.Unlock()
+
+	tasks, err := db.FindDownloadTaskById(id)
 	if err != nil {
 		return nil, err
 	}
