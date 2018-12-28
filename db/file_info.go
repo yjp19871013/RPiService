@@ -32,3 +32,13 @@ func FindFileInfoByFilePathname(pathname string) (*FileInfo, error) {
 
 	return fileInfo, nil
 }
+
+func FindFileInfoById(id uint) (*FileInfo, error) {
+	fileInfo := &FileInfo{}
+	err := db.Where("id = ?", id).First(fileInfo).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return fileInfo, nil
+}

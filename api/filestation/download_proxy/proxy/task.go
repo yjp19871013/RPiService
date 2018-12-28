@@ -1,4 +1,4 @@
-package download_proxy
+package proxy
 
 import (
 	"io/ioutil"

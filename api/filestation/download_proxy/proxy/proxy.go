@@ -1,4 +1,4 @@
-package download_proxy
+package proxy
 
 import (
 	"errors"
@@ -108,7 +108,7 @@ func (proxy *Proxy) AddTask(urlStr string, saveFilePathname string, user *db.Use
 		UserId:           user.ID,
 	}
 
-	err = proxy.addTaskWithoutLock(user, downloadTask)
+	err = proxy.addTaskWithoutLock(downloadTask)
 	if err != nil {
 		return 0, err
 	}
@@ -200,7 +200,7 @@ func (proxy *Proxy) stop() error {
 	return nil
 }
 
-func (proxy *Proxy) addTaskWithoutLock(user *db.User, downloadTask *db.DownloadTask) error {
+func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 	err := db.SaveDownloadTask(downloadTask)
 	if err != nil {
 		return err
@@ -209,7 +209,7 @@ func (proxy *Proxy) addTaskWithoutLock(user *db.User, downloadTask *db.DownloadT
 	completeChan := make(chan bool)
 	task := NewTask(downloadTask.Url, downloadTask.SaveFilePathname, completeChan)
 
-	go func(userId uint, taskId uint, completeChan chan bool) {
+	go func(downloadTask *db.DownloadTask, completeChan chan bool) {
 		for true {
 			select {
 			case complete := <-completeChan:
@@ -225,7 +225,7 @@ func (proxy *Proxy) addTaskWithoutLock(user *db.User, downloadTask *db.DownloadT
 						FilePathname: task.SaveFilePathname,
 						CompleteDate: time.Now().Format("2006-01-02 15:04:05"),
 						SizeKb:       float64(size) / 1024,
-						UserId:       userId,
+						UserId:       downloadTask.UserId,
 					}
 
 					err = db.SaveFileInfo(fileInfo)
@@ -234,7 +234,7 @@ func (proxy *Proxy) addTaskWithoutLock(user *db.User, downloadTask *db.DownloadT
 						continue
 					}
 
-					err = db.DeleteDownloadTask(&db.DownloadTask{ID: taskId})
+					err = db.DeleteDownloadTask(&db.DownloadTask{ID: downloadTask.ID})
 					if err != nil {
 						proxy.Unlock()
 						continue
@@ -242,7 +242,7 @@ func (proxy *Proxy) addTaskWithoutLock(user *db.User, downloadTask *db.DownloadT
 
 					_ = task.Stop()
 
-					delete(proxy.taskMap, taskId)
+					delete(proxy.taskMap, downloadTask.ID)
 
 					proxy.Unlock()
 					return
@@ -251,7 +251,7 @@ func (proxy *Proxy) addTaskWithoutLock(user *db.User, downloadTask *db.DownloadT
 				proxy.Unlock()
 			}
 		}
-	}(user.ID, downloadTask.ID, completeChan)
+	}(downloadTask, completeChan)
 
 	err = task.Start()
 	if err != nil {

@@ -2,16 +2,19 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/yjp19871013/RPiService/api/filestation"
+	"github.com/yjp19871013/RPiService/api/filestation/download_proxy"
+	"github.com/yjp19871013/RPiService/api/filestation/file_manage"
 	"github.com/yjp19871013/RPiService/api/users"
 	"github.com/yjp19871013/RPiService/middleware"
+	"github.com/yjp19871013/RPiService/settings"
 )
 
 var (
 	getRouter = map[string][]gin.HandlerFunc{
-		"/api/file-station/download-proxy/tasks":                          {middleware.JWTValidateMiddleware(), filestation.GetDownloadTasks},
-		"/api/file-station/download-proxy/tasks/download-progresses/:ids": {middleware.JWTValidateMiddleware(), filestation.DownloadTaskProgresses},
-		"/api/file-station/download-proxy/files":                          {middleware.JWTValidateMiddleware(), filestation.GetFiles},
+		"/api/file-station/download-proxy/tasks":                          {middleware.JWTValidateMiddleware(), download_proxy.GetDownloadTasks},
+		"/api/file-station/download-proxy/tasks/download-progresses/:ids": {middleware.JWTValidateMiddleware(), download_proxy.DownloadTaskProgresses},
+		"/api/file-station/download-proxy/file-infos":                     {middleware.JWTValidateMiddleware(), file_manage.GetFiles},
+		"/api/file-station/download-proxy/files/:id":                      {middleware.JWTValidateMiddleware(), file_manage.DownloadFile},
 	}
 
 	postRouter = map[string][]gin.HandlerFunc{
@@ -19,7 +22,7 @@ var (
 		"/api/users":               {users.Register},
 		"/api/users/validate-code": {users.GenerateValidateCode},
 
-		"/api/file-station/download-proxy/tasks": {middleware.JWTValidateMiddleware(), filestation.AddDownloadTask},
+		"/api/file-station/download-proxy/tasks": {middleware.JWTValidateMiddleware(), download_proxy.AddDownloadTask},
 	}
 
 	patchRouter = map[string][]gin.HandlerFunc{}
@@ -27,7 +30,7 @@ var (
 	deleteRouter = map[string][]gin.HandlerFunc{
 		"/api/users/token": {middleware.JWTValidateMiddleware(), users.DeleteToken},
 
-		"/api/file-station/download-proxy/tasks/:id": {middleware.JWTValidateMiddleware(), filestation.DeleteDownloadTask},
+		"/api/file-station/download-proxy/tasks/:id": {middleware.JWTValidateMiddleware(), download_proxy.DeleteDownloadTask},
 	}
 )
 
@@ -36,6 +39,8 @@ func InitRouter(r *gin.Engine) {
 	initPostRouter(r)
 	initPatchRouter(r)
 	initDeleteRouter(r)
+
+	r.Static(settings.StaticRoot, settings.StaticDir)
 }
 
 func initGetRouter(r *gin.Engine) {

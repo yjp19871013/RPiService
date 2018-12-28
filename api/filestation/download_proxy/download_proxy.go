@@ -1,4 +1,4 @@
-package filestation
+package download_proxy
 
 import (
 	"log"
@@ -8,19 +8,23 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/yjp19871013/RPiService/api/filestation/file_manage"
+
+	"github.com/yjp19871013/RPiService/settings"
+
 	"github.com/yjp19871013/RPiService/utils"
 
 	"github.com/yjp19871013/RPiService/middleware"
 
-	"github.com/yjp19871013/RPiService/api/filestation/download_proxy"
-	"github.com/yjp19871013/RPiService/api/filestation/dto"
+	"github.com/yjp19871013/RPiService/api/filestation/download_proxy/dto"
+	download_proxy "github.com/yjp19871013/RPiService/api/filestation/download_proxy/proxy"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yjp19871013/RPiService/db"
 )
 
 const (
-	saveDir = "files/"
+	saveDir = settings.StaticDir + file_manage.FilesRelativeDir
 )
 
 func GetDownloadTasks(c *gin.Context) {
@@ -62,7 +66,7 @@ func AddDownloadTask(c *gin.Context) {
 
 	user, _ := userContext.(*db.User)
 
-	absSaveDir, err := filepath.Abs(user.Email + "/" + saveDir)
+	absSaveDir, err := filepath.Abs(saveDir + user.Email)
 	if err != nil {
 		panic("download proxy save dir abs error")
 	}

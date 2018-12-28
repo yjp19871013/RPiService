@@ -7,7 +7,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/yjp19871013/RPiService/api/filestation/download_proxy"
+	"github.com/yjp19871013/RPiService/settings"
+
+	"github.com/yjp19871013/RPiService/api/filestation/download_proxy/proxy"
 	"github.com/yjp19871013/RPiService/db"
 	"github.com/yjp19871013/RPiService/router"
 
@@ -19,15 +21,15 @@ func main() {
 	db.InitDb()
 	defer db.CloseDb()
 
-	download_proxy.StartProxy()
-	defer download_proxy.StopProxy()
+	proxy.StartProxy()
+	defer proxy.StopProxy()
 
 	r := gin.Default()
 
 	router.InitRouter(r)
 
 	srv := &http.Server{
-		Addr:    ":10001",
+		Addr:    settings.ServerPort,
 		Handler: r,
 	}
 

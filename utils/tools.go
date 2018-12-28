@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/yjp19871013/RPiService/settings"
+
 	"github.com/scorredoira/email"
 
 	"github.com/json-iterator/go"
@@ -101,21 +103,14 @@ func MD5(str string) string {
 
 func GenerateValidateCode() string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
-	return fmt.Sprintf("%0d", r.Intn(1000000))
+	return fmt.Sprintf("%06d", r.Intn(1000000))
 }
-
-const (
-	smtpHost    = "smtp.126.com"
-	smtpAddress = smtpHost + ":25"
-	username    = "XXXXXXX"
-	password    = "XXXXXXXX"
-)
 
 func SendEmail(subject string, body string, to string) error {
 	m := email.NewMessage(subject, body)
-	m.From = mail.Address{Name: "From", Address: username}
+	m.From = mail.Address{Name: "From", Address: settings.SMTPUsername}
 	m.To = []string{to}
 
-	auth := smtp.PlainAuth("", username, password, smtpHost)
-	return email.Send(smtpAddress, auth, m)
+	auth := smtp.PlainAuth("", settings.SMTPUsername, settings.SMTPPassword, settings.SMTPHost)
+	return email.Send(settings.SMTPAddress, auth, m)
 }
