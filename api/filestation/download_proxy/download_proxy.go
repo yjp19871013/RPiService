@@ -135,7 +135,13 @@ func DeleteDownloadTask(c *gin.Context) {
 		return
 	}
 
-	if !checkDownloadTaskByUserId(uint(idInt), user.ID) {
+	downloadTask, err := download_proxy.GetInstance().GetTaskById(uint(idInt))
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	if downloadTask.UserId != user.ID {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
@@ -153,14 +159,6 @@ func DeleteDownloadTask(c *gin.Context) {
 }
 
 func DownloadTaskProgresses(c *gin.Context) {
-	userContext := c.Value(middleware.ContextUserKey)
-	if userContext == nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	user, _ := userContext.(*db.User)
-
 	ids := make([]uint, 0)
 	idsStr := strings.Split(c.Param("ids"), ";")
 	for _, id := range idsStr {
@@ -170,9 +168,7 @@ func DownloadTaskProgresses(c *gin.Context) {
 			return
 		}
 
-		if checkDownloadTaskByUserId(uint(idInt), user.ID) {
-			ids = append(ids, uint(idInt))
-		}
+		ids = append(ids, uint(idInt))
 	}
 
 	progresses, err := download_proxy.GetInstance().GetProcesses(ids)
@@ -193,17 +189,4 @@ func DownloadTaskProgresses(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
-}
-
-func checkDownloadTaskByUserId(taskId uint, userId uint) bool {
-	downloadTask, err := download_proxy.GetInstance().GetTaskById(taskId)
-	if err != nil {
-		return false
-	}
-
-	if downloadTask.UserId != userId {
-		return false
-	}
-
-	return true
 }
