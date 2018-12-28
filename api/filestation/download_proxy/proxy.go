@@ -108,7 +108,7 @@ func (proxy *Proxy) AddTask(urlStr string, saveFilePathname string, user *db.Use
 		UserId:           user.ID,
 	}
 
-	err = proxy.addTaskWithoutLock(downloadTask)
+	err = proxy.addTaskWithoutLock(user, downloadTask)
 	if err != nil {
 		return 0, err
 	}
@@ -200,7 +200,7 @@ func (proxy *Proxy) stop() error {
 	return nil
 }
 
-func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
+func (proxy *Proxy) addTaskWithoutLock(user *db.User, downloadTask *db.DownloadTask) error {
 	err := db.SaveDownloadTask(downloadTask)
 	if err != nil {
 		return err
@@ -209,7 +209,7 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 	completeChan := make(chan bool)
 	task := NewTask(downloadTask.Url, downloadTask.SaveFilePathname, completeChan)
 
-	go func(id uint, completeChan chan bool) {
+	go func(userId uint, taskId uint, completeChan chan bool) {
 		for true {
 			select {
 			case complete := <-completeChan:
@@ -225,6 +225,7 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 						FilePathname: task.SaveFilePathname,
 						CompleteDate: time.Now().Format("2006-01-02 15:04:05"),
 						SizeKb:       float64(size) / 1024,
+						UserId:       userId,
 					}
 
 					err = db.SaveFileInfo(fileInfo)
@@ -233,7 +234,7 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 						continue
 					}
 
-					err = db.DeleteDownloadTask(&db.DownloadTask{ID: id})
+					err = db.DeleteDownloadTask(&db.DownloadTask{ID: taskId})
 					if err != nil {
 						proxy.Unlock()
 						continue
@@ -241,7 +242,7 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 
 					_ = task.Stop()
 
-					delete(proxy.taskMap, id)
+					delete(proxy.taskMap, taskId)
 
 					proxy.Unlock()
 					return
@@ -250,7 +251,7 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 				proxy.Unlock()
 			}
 		}
-	}(downloadTask.ID, completeChan)
+	}(user.ID, downloadTask.ID, completeChan)
 
 	err = task.Start()
 	if err != nil {

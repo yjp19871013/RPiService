@@ -191,38 +191,6 @@ func DownloadTaskProgresses(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func GetFiles(c *gin.Context) {
-	userContext := c.Value(middleware.ContextUserKey)
-	if userContext == nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	user, _ := userContext.(*db.User)
-
-	log.Println(user)
-
-	infos, err := db.FindFileInfosByUser(user)
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	response := dto.GetAllFileInfosResponse{
-		FileInfos: make([]dto.FileInfo, 0),
-	}
-	for _, info := range infos {
-		response.FileInfos = append(response.FileInfos, dto.FileInfo{
-			ID:           info.ID,
-			FileName:     filepath.Base(info.FilePathname),
-			CompleteDate: info.CompleteDate,
-			SizeKb:       info.SizeKb,
-		})
-	}
-
-	c.JSON(http.StatusOK, response)
-}
-
 func checkDownloadTaskByUserId(taskId uint, userId uint) bool {
 	downloadTask, err := download_proxy.GetInstance().GetTaskById(taskId)
 	if err != nil {

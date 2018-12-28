@@ -15,7 +15,7 @@ func SaveFileInfo(info *FileInfo) error {
 
 func FindFileInfosByUser(user *User) ([]FileInfo, error) {
 	infos := make([]FileInfo, 0)
-	err := db.Model(&user).Related(&infos).Error
+	err := db.Model(user).Related(&infos).Error
 	if err != nil {
 		return nil, err
 	}
