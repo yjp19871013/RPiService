@@ -1,8 +1,10 @@
 package db
 
 type FileInfo struct {
-	ID           uint   `gorm:"primary_key"`
-	FilePathname string `gorm:"unique;not null"`
+	ID           uint    `gorm:"primary_key"`
+	FilePathname string  `gorm:"unique;not null"`
+	CompleteDate string  `gorm:"not null"`
+	SizeKb       float64 `gorm:"not null"`
 
 	UserId uint
 }

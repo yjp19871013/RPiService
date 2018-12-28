@@ -62,6 +62,19 @@ func PathExists(path string) (bool, error) {
 	return false, err
 }
 
+func FileSize(path string) (uint64, error) {
+	stat, err := os.Stat(path)
+	if err == nil {
+		return uint64(stat.Size()), nil
+	}
+
+	if os.IsNotExist(err) {
+		return 0, nil
+	}
+
+	return 0, err
+}
+
 func GetAllFiles(pathname string) ([]string, error) {
 	rd, err := ioutil.ReadDir(pathname)
 	if err != nil {

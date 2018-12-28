@@ -5,6 +5,9 @@ import (
 	"log"
 	"os"
 	"sync"
+	"time"
+
+	"github.com/yjp19871013/RPiService/utils"
 
 	"github.com/yjp19871013/RPiService/db"
 )
@@ -213,8 +216,15 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 				proxy.Lock()
 
 				if complete {
+					size, err := utils.FileSize(task.SaveFilePathname)
+					if err != nil {
+						size = 0
+					}
+
 					fileInfo := &db.FileInfo{
 						FilePathname: task.SaveFilePathname,
+						CompleteDate: time.Now().Format("2006-01-02 15:04:05"),
+						SizeKb:       float64(size) / 1024,
 					}
 
 					err = db.SaveFileInfo(fileInfo)
@@ -223,7 +233,7 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 						continue
 					}
 
-					err := db.DeleteDownloadTask(&db.DownloadTask{ID: id})
+					err = db.DeleteDownloadTask(&db.DownloadTask{ID: id})
 					if err != nil {
 						proxy.Unlock()
 						continue

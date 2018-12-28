@@ -213,8 +213,10 @@ func GetFiles(c *gin.Context) {
 	}
 	for _, info := range infos {
 		response.FileInfos = append(response.FileInfos, dto.FileInfo{
-			ID:       info.ID,
-			FileName: filepath.Base(info.FilePathname),
+			ID:           info.ID,
+			FileName:     filepath.Base(info.FilePathname),
+			CompleteDate: info.CompleteDate,
+			SizeKb:       info.SizeKb,
 		})
 	}
 

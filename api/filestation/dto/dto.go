@@ -29,8 +29,10 @@ type GetAllTaskResponse struct {
 }
 
 type FileInfo struct {
-	ID       uint   `json:"id" binding:"required"`
-	FileName string `json:"fileName" binding:"required"`
+	ID           uint    `json:"id" binding:"required"`
+	FileName     string  `json:"fileName" binding:"required"`
+	CompleteDate string  `json:"completeDate" binding:"required"`
+	SizeKb       float64 `json:"sizeKb" binding:"required"`
 }
 
 type GetAllFileInfosResponse struct {
