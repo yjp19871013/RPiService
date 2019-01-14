@@ -36,6 +36,16 @@ func FindUserByToken(token string) (*User, error) {
 	return user, nil
 }
 
+func GetUserRoles(user *User) ([]Role, error) {
+	roles := make([]Role, 0)
+	err := db.Model(user).Related(&roles, "Roles").Error
+	if err != nil {
+		return nil, err
+	}
+
+	return roles, nil
+}
+
 func SaveUser(user *User) error {
 	return db.Save(user).Error
 }

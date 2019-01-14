@@ -52,7 +52,22 @@ func CreateToken(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.TokenResponse{Token: jwtCode})
+	roles, err := db.GetUserRoles(user)
+	if err != nil {
+		log.Println(err)
+		roles = make([]db.Role, 0)
+	}
+
+	response := dto.TokenResponse{
+		Token: jwtCode,
+		Roles: make([]string, 0),
+	}
+
+	for _, role := range roles {
+		response.Roles = append(response.Roles, role.Name)
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func DeleteToken(c *gin.Context) {

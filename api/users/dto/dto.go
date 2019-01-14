@@ -6,7 +6,8 @@ type CreateTokenRequest struct {
 }
 
 type TokenResponse struct {
-	Token string `json:"token"`
+	Token string   `json:"token"`
+	Roles []string `json:"roles"`
 }
 
 type RegisterRequest struct {
