@@ -9,7 +9,7 @@ type Role struct {
 
 func FindRoleByName(name string) (*Role, error) {
 	role := &Role{}
-	err := db.Where("name = ?", AdminRoleName).First(role).Error
+	err := db.Where("name = ?", name).First(role).Error
 	if err != nil {
 		return nil, err
 	}
