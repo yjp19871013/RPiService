@@ -25,4 +25,15 @@ type (
 	GetRolesResponse struct {
 		Roles []string `json:"roles" binding:"required"`
 	}
+
+	UserInfo struct {
+		Email      string   `json:"email" binding:"required,email_validator"`
+		Roles      []string `json:"roles" binding:"required"`
+		CreateDate string   `json:"createDate" binding:"required"`
+		UpdateDate string   `json:"updateDate" binding:"required"`
+	}
+
+	GetUsersResponse struct {
+		UserInfos []*UserInfo `json:"userInfos" binding:"required"`
+	}
 )

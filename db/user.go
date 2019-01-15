@@ -46,6 +46,16 @@ func GetUserRoles(user *User) ([]Role, error) {
 	return roles, nil
 }
 
+func GetAllUsers() ([]User, error) {
+	users := make([]User, 0)
+	err := db.Preload("Roles").Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func SaveUser(user *User) error {
 	return db.Save(user).Error
 }

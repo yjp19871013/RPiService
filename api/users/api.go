@@ -204,3 +204,31 @@ func GetAllRoles(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func GetAllUsers(c *gin.Context) {
+	users, err := db.GetAllUsers()
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	response := dto.GetUsersResponse{
+		UserInfos: make([]*dto.UserInfo, 0),
+	}
+
+	for _, user := range users {
+		userInfo := &dto.UserInfo{}
+		userInfo.Email = user.Email
+
+		for _, role := range user.Roles {
+			userInfo.Roles = append(userInfo.Roles, role.Name)
+		}
+
+		userInfo.CreateDate = user.Model.CreatedAt.Format("2006-1-2 15:04:05")
+		userInfo.UpdateDate = user.Model.UpdatedAt.Format("2006-1-2 15:04:05")
+
+		response.UserInfos = append(response.UserInfos, userInfo)
+	}
+
+	c.JSON(http.StatusOK, response)
+}

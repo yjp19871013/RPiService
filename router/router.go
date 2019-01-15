@@ -17,6 +17,7 @@ var (
 		"/api/file-station/download-proxy/files/:id":                      {middleware.JWTValidateMiddleware(), file_manage.DownloadFile},
 
 		"/api/users/roles": {middleware.JWTValidateMiddleware(), users.GetAllRoles},
+		"/api/users":       {middleware.JWTValidateMiddleware(), users.GetAllUsers},
 	}
 
 	postRouter = map[string][]gin.HandlerFunc{
