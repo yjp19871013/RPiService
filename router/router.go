@@ -15,6 +15,8 @@ var (
 		"/api/file-station/download-proxy/tasks/download-progresses/:ids": {middleware.JWTValidateMiddleware(), download_proxy.DownloadTaskProgresses},
 		"/api/file-station/download-proxy/file-infos":                     {middleware.JWTValidateMiddleware(), file_manage.GetFiles},
 		"/api/file-station/download-proxy/files/:id":                      {middleware.JWTValidateMiddleware(), file_manage.DownloadFile},
+
+		"/api/users/roles": {middleware.JWTValidateMiddleware(), users.GetAllRoles},
 	}
 
 	postRouter = map[string][]gin.HandlerFunc{

@@ -186,3 +186,21 @@ func Register(c *gin.Context) {
 
 	c.AbortWithStatus(http.StatusOK)
 }
+
+func GetAllRoles(c *gin.Context) {
+	roles, err := db.GetAllRoles()
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	response := dto.GetRolesResponse{
+		Roles: make([]string, 0),
+	}
+
+	for _, role := range roles {
+		response.Roles = append(response.Roles, role.Name)
+	}
+
+	c.JSON(http.StatusOK, response)
+}

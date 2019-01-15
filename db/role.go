@@ -17,6 +17,16 @@ func FindRoleByName(name string) (*Role, error) {
 	return role, nil
 }
 
+func GetAllRoles() ([]Role, error) {
+	roles := make([]Role, 0)
+	err := db.Find(&roles).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return roles, err
+}
+
 func SaveRole(role *Role) error {
 	return db.Save(role).Error
 }

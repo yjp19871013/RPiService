@@ -13,11 +13,11 @@ const (
 	CommonPermissionName = "common"
 	CommonPermissionDesc = "common permissions"
 
-	AdminRoleName = "admin_role"
-	AdminRoleDesc = "admin role"
+	AdminRoleName = "管理员"
+	AdminRoleDesc = "管理员"
 
-	CommonRoleName = "common_role"
-	CommonRoleDesc = "common role"
+	CommonRoleName = "普通用户"
+	CommonRoleDesc = "普通用户"
 
 	AdminUserEmail    = "admin@yjp.com"
 	AdminUserPassword = "123456"
