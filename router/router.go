@@ -31,8 +31,6 @@ var (
 	patchRouter = map[string][]gin.HandlerFunc{}
 
 	deleteRouter = map[string][]gin.HandlerFunc{
-		"/api/users/token": {middleware.JWTValidateMiddleware(), users.DeleteToken},
-
 		"/api/file-station/download-proxy/tasks/:id": {middleware.JWTValidateMiddleware(), download_proxy.DeleteDownloadTask},
 		"/api/file-station/download-proxy/files/:id": {middleware.JWTValidateMiddleware(), file_manage.DeleteFile},
 	}

@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/yjp19871013/RPiService/api/users/dto"
@@ -68,28 +67,6 @@ func CreateToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
-}
-
-func DeleteToken(c *gin.Context) {
-	token := c.GetHeader("Authorization")
-	if strings.Contains(token, "Bearer ") {
-		token = token[len("Bearer "):]
-	}
-
-	user, err := db.FindUserByToken(token)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, dto.TokenResponse{Token: ""})
-		return
-	}
-
-	user.Token = ""
-	err = db.SaveUser(user)
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	c.JSON(http.StatusOK, dto.TokenResponse{Token: token})
 }
 
 func GenerateValidateCode(c *gin.Context) {
