@@ -3,6 +3,7 @@ package proxy
 import (
 	"errors"
 	"log"
+	"math"
 	"os"
 	"sync"
 	"time"
@@ -224,7 +225,7 @@ func (proxy *Proxy) addTaskWithoutLock(downloadTask *db.DownloadTask) error {
 					fileInfo := &db.FileInfo{
 						FilePathname: task.SaveFilePathname,
 						CompleteDate: time.Now().Format("2006-01-02 15:04:05"),
-						SizeKb:       float64(size) / 1024,
+						SizeKb:       math.Trunc(float64(size)/1024*1e2+0.5) * 1e-2,
 						UserId:       downloadTask.UserId,
 					}
 
