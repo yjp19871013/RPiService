@@ -27,6 +27,7 @@ type (
 	}
 
 	UserInfo struct {
+		ID         uint     `json:"id" binding:"required"`
 		Email      string   `json:"email" binding:"required,email_validator"`
 		Roles      []string `json:"roles" binding:"required"`
 		CreateDate string   `json:"createDate" binding:"required"`
@@ -35,5 +36,10 @@ type (
 
 	GetUsersResponse struct {
 		UserInfos []*UserInfo `json:"userInfos" binding:"required"`
+	}
+
+	UpdateUserRequest struct {
+		ID    uint     `json:"id" binding:"required"`
+		Roles []string `json:"roles" binding:"required"`
 	}
 )

@@ -59,3 +59,31 @@ func GetAllUsers() ([]User, error) {
 func SaveUser(user *User) error {
 	return db.Save(user).Error
 }
+
+func UpdateUserRoles(id uint, roles []string) error {
+	tx := db.Begin()
+
+	findUser := &User{}
+	err := tx.Where("id = ?", id).First(findUser).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	for _, roleName := range roles {
+		role := Role{}
+		err = tx.Where("name = ?", roleName).First(&role).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		findUser.Roles = append(findUser.Roles, role)
+	}
+
+	tx.Save(findUser)
+
+	tx.Commit()
+
+	return nil
+}

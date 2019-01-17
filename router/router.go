@@ -28,7 +28,9 @@ var (
 		"/api/file-station/download-proxy/tasks": {middleware.JWTValidateMiddleware(), download_proxy.AddDownloadTask},
 	}
 
-	patchRouter = map[string][]gin.HandlerFunc{}
+	putRouter = map[string][]gin.HandlerFunc{
+		"/api/users/roles": {middleware.JWTValidateMiddleware(), users.UpdateUserRoles},
+	}
 
 	deleteRouter = map[string][]gin.HandlerFunc{
 		"/api/file-station/download-proxy/tasks/:id": {middleware.JWTValidateMiddleware(), download_proxy.DeleteDownloadTask},
@@ -39,7 +41,7 @@ var (
 func InitRouter(r *gin.Engine) {
 	initGetRouter(r)
 	initPostRouter(r)
-	initPatchRouter(r)
+	initPutRouter(r)
 	initDeleteRouter(r)
 
 	r.Static(settings.StaticRoot, settings.StaticDir)
@@ -57,9 +59,9 @@ func initPostRouter(r *gin.Engine) {
 	}
 }
 
-func initPatchRouter(r *gin.Engine) {
-	for path, f := range patchRouter {
-		r.PATCH(path, f...)
+func initPutRouter(r *gin.Engine) {
+	for path, f := range putRouter {
+		r.PUT(path, f...)
 	}
 }
 

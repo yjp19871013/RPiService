@@ -164,6 +164,23 @@ func Register(c *gin.Context) {
 	c.AbortWithStatus(http.StatusOK)
 }
 
+func UpdateUserRoles(c *gin.Context) {
+	var request dto.UpdateUserRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	err = db.UpdateUserRoles(request.ID, request.Roles)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.AbortWithStatus(http.StatusOK)
+}
+
 func GetAllRoles(c *gin.Context) {
 	roles, err := db.GetAllRoles()
 	if err != nil {
@@ -195,6 +212,7 @@ func GetAllUsers(c *gin.Context) {
 
 	for _, user := range users {
 		userInfo := &dto.UserInfo{}
+		userInfo.ID = user.ID
 		userInfo.Email = user.Email
 
 		for _, role := range user.Roles {
