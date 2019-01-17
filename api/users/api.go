@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/yjp19871013/RPiService/api/users/dto"
@@ -173,6 +174,23 @@ func UpdateUserRoles(c *gin.Context) {
 	}
 
 	err = db.UpdateUserRoles(request.ID, request.Roles)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.AbortWithStatus(http.StatusOK)
+}
+
+func DeleteUser(c *gin.Context) {
+	id := c.Param("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	err = db.DeleteUser(uint(idInt))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

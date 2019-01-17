@@ -35,6 +35,7 @@ var (
 	deleteRouter = map[string][]gin.HandlerFunc{
 		"/api/file-station/download-proxy/tasks/:id": {middleware.JWTValidateMiddleware(), download_proxy.DeleteDownloadTask},
 		"/api/file-station/download-proxy/files/:id": {middleware.JWTValidateMiddleware(), file_manage.DeleteFile},
+		"/api/users/:id":                             {middleware.JWTValidateMiddleware(), users.DeleteUser},
 	}
 )
 

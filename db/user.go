@@ -62,8 +62,45 @@ func SaveUser(user *User) error {
 	return db.Save(user).Error
 }
 
+func DeleteUser(id uint) error {
+	tx := db.Begin()
+	if db.Error != nil {
+		return db.Error
+	}
+
+	findUser := &User{}
+	err := tx.Where("id = ?", id).First(findUser).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Model(findUser).Association("roles").Clear().Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Delete(findUser).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
+}
+
 func UpdateUserRoles(id uint, roles []string) error {
 	tx := db.Begin()
+	if db.Error != nil {
+		return db.Error
+	}
 
 	findUser := &User{}
 	err := tx.Where("id = ?", id).First(findUser).Error
