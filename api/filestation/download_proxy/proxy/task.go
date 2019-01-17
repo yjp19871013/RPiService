@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -44,8 +43,6 @@ func (task *Task) Start() error {
 	if task.isStart {
 		return nil
 	}
-
-	log.Println(task.logFile.Name())
 
 	task.cmd = exec.Command("wget", "-c", task.Url, "-O", task.SaveFilePathname, "-o", task.logFile.Name(), "-v")
 	err := task.cmd.Start()

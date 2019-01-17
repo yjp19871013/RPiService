@@ -17,7 +17,7 @@ func JWTValidateMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, err := jwt_tools.GetJWTUser(c.Request)
 		if err != nil {
-			log.Println("jwt validate error")
+			log.Println(err)
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}

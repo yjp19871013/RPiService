@@ -1,9 +1,5 @@
 package db
 
-import (
-	"log"
-)
-
 type DownloadTask struct {
 	ID               uint   `gorm:"primary_key"`
 	Url              string `gorm:"not null"`
@@ -59,7 +55,6 @@ func FindDownloadTaskBySaveFilePathname(savePathname string) (*DownloadTask, err
 		return nil, err
 	}
 
-	log.Println(task)
 	return task, nil
 }
 
