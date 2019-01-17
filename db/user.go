@@ -81,7 +81,7 @@ func DeleteUser(id uint) error {
 		return err
 	}
 
-	err = tx.Delete(findUser).Error
+	err = tx.Unscoped().Delete(findUser).Error
 	if err != nil {
 		tx.Rollback()
 		return err
