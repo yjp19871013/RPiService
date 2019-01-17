@@ -1,6 +1,8 @@
 package db
 
 import (
+	"log"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -70,6 +72,12 @@ func UpdateUserRoles(id uint, roles []string) error {
 		return err
 	}
 
+	err = tx.Model(findUser).Association("roles").Clear().Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	for _, roleName := range roles {
 		role := Role{}
 		err = tx.Where("name = ?", roleName).First(&role).Error
@@ -81,9 +89,19 @@ func UpdateUserRoles(id uint, roles []string) error {
 		findUser.Roles = append(findUser.Roles, role)
 	}
 
-	tx.Save(findUser)
+	log.Println(findUser.Roles)
 
-	tx.Commit()
+	err = tx.Save(findUser).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
 
 	return nil
 }
